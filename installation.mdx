@@ -1,0 +1,206 @@
+---
+title: Installation
+description: Install Mantle Polaris and configure dependencies for your Shopify app
+---
+
+## Prerequisites
+
+Before installing Mantle Polaris, ensure you have:
+
+- **Node.js** version 16.17.0 or higher, or Node.js 18.12.0+
+- A **Mantle account** with configured plans ([Sign up at heymantle.com](https://heymantle.com))
+- A **Shopify app** using React
+
+## Install Mantle Polaris
+
+Install the `@heymantle/polaris` package using your preferred package manager:
+
+<CodeGroup>
+
+```bash npm
+npm install @heymantle/polaris
+```
+
+```bash yarn
+yarn add @heymantle/polaris
+```
+
+```bash pnpm
+pnpm add @heymantle/polaris
+```
+
+</CodeGroup>
+
+## Peer Dependencies
+
+Mantle Polaris requires two peer dependencies that must be installed separately:
+
+### 1. Shopify Polaris
+
+The Shopify Polaris design system provides the UI foundation:
+
+<CodeGroup>
+
+```bash npm
+npm install @shopify/polaris@^13.0.0 react@^18.2.0
+```
+
+```bash yarn
+yarn add @shopify/polaris@^13.0.0 react@^18.2.0
+```
+
+```bash pnpm
+pnpm add @shopify/polaris@^13.0.0 react@^18.2.0
+```
+
+</CodeGroup>
+
+<Note>
+Mantle Polaris is built for Shopify Polaris v13+. Earlier versions are not supported.
+</Note>
+
+### 2. Mantle React Client
+
+The `@heymantle/react` package provides data fetching and the `MantleProvider` context:
+
+<CodeGroup>
+
+```bash npm
+npm install @heymantle/react
+```
+
+```bash yarn
+yarn add @heymantle/react
+```
+
+```bash pnpm
+pnpm add @heymantle/react
+```
+
+</CodeGroup>
+
+## All-in-One Installation
+
+Install all required packages in a single command:
+
+<CodeGroup>
+
+```bash npm
+npm install @heymantle/polaris @heymantle/react @shopify/polaris@^13.0.0 react@^18.2.0
+```
+
+```bash yarn
+yarn add @heymantle/polaris @heymantle/react @shopify/polaris@^13.0.0 react@^18.2.0
+```
+
+```bash pnpm
+pnpm add @heymantle/polaris @heymantle/react @shopify/polaris@^13.0.0 react@^18.2.0
+```
+
+</CodeGroup>
+
+## Setup Polaris Styles
+
+If you haven't already, import Shopify Polaris styles in your app's root component or main CSS file:
+
+```jsx App.jsx
+import "@shopify/polaris/build/esm/styles.css";
+import { AppProvider } from "@shopify/polaris";
+
+function App() {
+  return (
+    <AppProvider>
+      {/* Your app components */}
+    </AppProvider>
+  );
+}
+```
+
+<Note>
+Mantle Polaris components inherit styles from Shopify Polaris. Make sure Polaris CSS is loaded before rendering any components.
+</Note>
+
+## Verify Installation
+
+Verify the installation by checking your `package.json`:
+
+```json package.json
+{
+  "dependencies": {
+    "@heymantle/polaris": "^13.0.2",
+    "@heymantle/react": "^0.0.70",
+    "@shopify/polaris": "^13.9.5",
+    "react": "^18.2.0"
+  }
+}
+```
+
+## Included Dependencies
+
+Mantle Polaris automatically includes these dependencies:
+
+- `@shopify/polaris-icons` - Icon set for Polaris components
+- `@emotion/react` - CSS-in-JS for styled components
+- `dayjs` - Date formatting and manipulation
+
+You don't need to install these separately.
+
+## TypeScript Support
+
+Mantle Polaris includes TypeScript type definitions. Types are automatically available when using TypeScript:
+
+```tsx
+import { HorizontalPlanCards } from "@heymantle/polaris";
+import type { Customer, Plan } from "@heymantle/react";
+
+interface Props {
+  customer: Customer;
+  plans: Plan[];
+}
+
+function PricingPage({ customer, plans }: Props) {
+  return <HorizontalPlanCards customer={customer} plans={plans} />;
+}
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Module not found: @shopify/polaris">
+    Install the Shopify Polaris peer dependency:
+    
+    ```bash
+    npm install @shopify/polaris@^13.0.0
+    ```
+  </Accordion>
+
+  <Accordion title="Cannot find MantleProvider">
+    The `MantleProvider` is exported from `@heymantle/react`, not `@heymantle/polaris`. Install the React client:
+    
+    ```bash
+    npm install @heymantle/react
+    ```
+  </Accordion>
+
+  <Accordion title="Styles not rendering correctly">
+    Ensure Polaris CSS is imported before rendering components:
+    
+    ```jsx
+    import "@shopify/polaris/build/esm/styles.css";
+    ```
+  </Accordion>
+
+  <Accordion title="Unsupported Node version">
+    Mantle Polaris requires Node.js 16.17.0+ or 18.12.0+. Update Node.js:
+    
+    ```bash
+    node --version
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<Card title="Quickstart Guide" icon="rocket" href="/quickstart">
+  Follow the quickstart guide to build your first pricing page with Mantle Polaris
+</Card>

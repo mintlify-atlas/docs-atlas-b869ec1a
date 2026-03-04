@@ -1,0 +1,185 @@
+---
+title: "ChecklistCard"
+description: "Display an interactive checklist with progress tracking"
+---
+
+The `ChecklistCard` component renders an interactive checklist inside a Polaris card, perfect for onboarding flows, setup steps, or task management. It includes progress tracking, collapsible completed items, and modal descriptions.
+
+## Usage
+
+```jsx
+import { ChecklistCard } from '@heymantle/polaris';
+import { useState } from 'react';
+
+function OnboardingChecklist() {
+  const [steps, setSteps] = useState([
+    {
+      id: 'step-1',
+      name: 'Connect your store',
+      description: 'Link your Shopify store to get started',
+      completed: false
+    },
+    {
+      id: 'step-2',
+      name: 'Configure settings',
+      description: 'Set up your preferences and options',
+      completed: false
+    },
+    {
+      id: 'step-3',
+      name: 'Install theme extension',
+      description: 'Add our theme extension to your store',
+      completed: true
+    }
+  ]);
+
+  return (
+    <ChecklistCard
+      title="Setup Checklist"
+      steps={steps}
+      showProgress={true}
+      showProgressText={true}
+      hideCompleted={false}
+      allowExpandCompleted={true}
+      showDescription={true}
+      enableDescriptionModal={false}
+      completionMessage="All set! You're ready to go."
+      noItemsMessage="No tasks available."
+    />
+  );
+}
+```
+
+<Info>
+  **Note:** This is a presentational component. You need to implement your own state management and `handleToggle` function to manage checkbox interactions. The component displays the steps but doesn't handle state changes internally.
+</Info>
+
+## Props
+
+<ParamField path="title" type="string" default="Checklist">
+  The title displayed at the top of the checklist card.
+</ParamField>
+
+<ParamField path="steps" type="array" default="[]">
+  Array of step objects to display in the checklist. Each step must include:
+  
+  ```javascript
+  [{
+    id: string | number,        // Unique identifier for the step
+    name: string,                // Display name of the step
+    description: string,         // Optional description text
+    completed: boolean           // Whether the step is completed
+  }]
+  ```
+</ParamField>
+
+<ParamField path="showProgress" type="boolean" default={true}>
+  Whether to display the progress bar and progress statistics at the top of the card.
+</ParamField>
+
+<ParamField path="showProgressText" type="boolean" default={true}>
+  Whether to display the progress text ("Progress: X of Y completed" and percentage). Only applies when `showProgress={true}`.
+</ParamField>
+
+<ParamField path="hideCompleted" type="boolean" default={false}>
+  Whether to automatically hide completed steps from the main list. When `true`, completed steps are moved to a collapsible section (if `allowExpandCompleted={true}`) or hidden entirely.
+</ParamField>
+
+<ParamField path="allowExpandCompleted" type="boolean" default={true}>
+  When `hideCompleted={true}`, this controls whether users can expand a collapsible section to view completed steps. If `false`, completed steps are completely hidden.
+</ParamField>
+
+<ParamField path="showDescription" type="boolean" default={true}>
+  Whether to display step descriptions inline below each step name. If `false`, descriptions are not shown (unless `enableDescriptionModal={true}`).
+</ParamField>
+
+<ParamField path="enableDescriptionModal" type="boolean" default={false}>
+  When `true`, step names become clickable and open a modal displaying the full description. This is useful for steps with long descriptions. The step name will show an underline on hover to indicate it's clickable.
+</ParamField>
+
+<ParamField path="completionMessage" type="string | JSX.Element" default="All items completed! Great job!">
+  Message or JSX content displayed when all items are completed and `hideCompleted={true}` and `allowExpandCompleted={false}`. Can be a string or a custom React component.
+</ParamField>
+
+<ParamField path="noItemsMessage" type="string | JSX.Element" default="No items in this checklist yet.">
+  Message or JSX content displayed when the `steps` array is empty. Can be a string or a custom React component.
+</ParamField>
+
+## Features
+
+### Progress Tracking
+
+When `showProgress={true}`, the component displays:
+- Progress text showing completed count and total (e.g., "Progress: 2 of 5 completed")
+- Percentage complete
+- Animated progress bar that updates as steps are completed
+- Color changes: blue during progress, green when complete
+
+### Completion Indicator
+
+When all steps are completed, a green checkmark icon with "Complete!" text appears next to the title.
+
+### Collapsible Completed Steps
+
+When `hideCompleted={true}` and `allowExpandCompleted={true}`:
+- Completed steps are hidden from the main list
+- A "Show X completed items" button appears at the bottom
+- Clicking expands/collapses the completed items section
+- Smooth animation when expanding/collapsing
+
+### Interactive Step Names
+
+When `enableDescriptionModal={true}`:
+- Step names show an underline on hover
+- Clicking a step name opens a modal with the full description
+- Modal includes a "Close" button
+- Only steps with descriptions are clickable
+
+### Visual States
+
+- Completed steps: shown with subdued tone and line-through text decoration
+- Incomplete steps: shown with normal tone
+- Checkboxes: reflect the completed state of each step
+
+### Empty States
+
+The component handles two empty states:
+1. **No items**: When `steps` array is empty, shows `noItemsMessage`
+2. **All hidden**: When all items are completed with `hideCompleted={true}` and `allowExpandCompleted={false}`, shows `completionMessage`
+
+## Implementation Notes
+
+<Warning>
+  The component references a `handleToggle` function for checkbox changes, but this function is not defined in the component. You must implement checkbox state management in your parent component and pass updated `steps` to the component.
+</Warning>
+
+Example implementation:
+
+```jsx
+function MyChecklist() {
+  const [steps, setSteps] = useState([...]);
+
+  const handleToggle = (stepId) => {
+    setSteps(steps.map(step => 
+      step.id === stepId 
+        ? { ...step, completed: !step.completed }
+        : step
+    ));
+  };
+
+  // Pass handleToggle to your wrapper or use a modified version of ChecklistCard
+}
+```
+
+## Customization
+
+The component uses inline styles for the progress bar, which you can customize by modifying:
+- Bar height: default `8px`
+- Bar border radius: default `4px`
+- Background color: default `#f0f0f0`
+- Progress color: `#00a047` (complete) or `#006fbb` (in progress)
+
+## Related Components
+
+- [SubscriptionSummaryCard](/api/subscription-summary-card) - Display subscription information
+- [BundleCard](/api/bundle-card) - Display app bundle offers

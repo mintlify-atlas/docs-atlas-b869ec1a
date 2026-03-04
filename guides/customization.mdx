@@ -1,0 +1,441 @@
+---
+title: "Customization Guide"
+description: "Learn how to customize Mantle Polaris components to match your brand and requirements"
+---
+
+Mantle Polaris components are designed to be highly customizable while maintaining consistency with Shopify's Polaris design system. This guide covers all customization options available.
+
+## Component-level customization
+
+All Mantle Polaris components accept props that control their appearance and behavior.
+
+### Layout customization
+
+Control the page layout and width for plan card components:
+
+```jsx
+import { HorizontalPlanCards } from "@heymantle/polaris";
+
+function PricingPage() {
+  return (
+    <HorizontalPlanCards
+      customer={customer}
+      plans={plans}
+      onSubscribe={handleSubscribe}
+      pageWidth="narrow"  // "default" | "narrow" | "full"
+      backUrl="/dashboard"
+    />
+  );
+}
+```
+
+<ParamField path="pageWidth" type="string" default="default">
+  Controls the maximum width of the page content:
+  - `"default"` - Standard Polaris page width (fits most content)
+  - `"narrow"` - Narrower width for focused content
+  - `"full"` - Full browser width for maximum space
+</ParamField>
+
+<ParamField path="backUrl" type="string">
+  URL for the back button in the page header. Set to empty string or omit to hide the back button.
+</ParamField>
+
+### Interval toggle customization
+
+Control whether users can toggle between monthly and yearly billing:
+
+```jsx
+<HorizontalPlanCards
+  customer={customer}
+  plans={plans}
+  onSubscribe={handleSubscribe}
+  showPlanIntervalToggle={true}      // Show the monthly/yearly toggle
+  useShortFormPlanIntervals={true}   // Use "mo" instead of "month"
+  toggleYearlySubtitle={true}        // Show monthly equivalent for yearly plans
+/>
+```
+
+<ParamField path="showPlanIntervalToggle" type="boolean" default="true">
+  Shows a segmented control button to toggle between monthly and yearly plans. Only appears if you have both monthly and annual plans available.
+</ParamField>
+
+<ParamField path="useShortFormPlanIntervals" type="boolean" default="true">
+  When `true`, displays intervals as "mo" and "yr" instead of "month" and "year".
+</ParamField>
+
+<ParamField path="toggleYearlySubtitle" type="boolean" default="false">
+  When `true`, shows the monthly equivalent price below annual plan pricing (e.g., "$10/mo billed annually").
+</ParamField>
+
+### Badge and recommendation customization
+
+Highlight recommended plans with badges:
+
+```jsx
+<VerticalPlanCards
+  customer={customer}
+  plans={plans}
+  onSubscribe={handleSubscribe}
+  showRecommendedBadge={true}
+  keyForRecommended="recommended"  // Custom field key to check
+/>
+```
+
+<ParamField path="showRecommendedBadge" type="boolean" default="true">
+  Shows a "Recommended" badge on plans marked as recommended.
+</ParamField>
+
+<ParamField path="keyForRecommended" type="string" default="recommended">
+  The custom field key to check on each plan for recommendation status. See [Custom fields](#using-custom-fields) below.
+</ParamField>
+
+### Feature display customization
+
+Control how plan features and trial periods are displayed:
+
+```jsx
+<HorizontalPlanCards
+  customer={customer}
+  plans={plans}
+  onSubscribe={handleSubscribe}
+  showTrialDaysAsFeature={true}
+  showFeatureDescriptionAsTooltip={true}
+/>
+```
+
+<ParamField path="showTrialDaysAsFeature" type="boolean" default="true">
+  When `true`, shows the trial period as a feature in the plan's feature list (e.g., "14 day free trial").
+</ParamField>
+
+<ParamField path="showFeatureDescriptionAsTooltip" type="boolean" default="true">
+  When `true`, feature descriptions appear in tooltips on hover. When `false`, descriptions are hidden.
+</ParamField>
+
+### Custom plan visibility
+
+Control whether custom (non-public) plans are displayed:
+
+```jsx
+<HorizontalPlanCards
+  customer={customer}
+  plans={plans}
+  onSubscribe={handleSubscribe}
+  showCustomPlans={true}  // Show customer-specific and tagged plans
+/>
+```
+
+<ParamField path="showCustomPlans" type="boolean" default="true">
+  When `true`, displays plans with availability set to `"customer"` or `"customerTag"` in a separate section below public plans.
+</ParamField>
+
+## Using custom fields
+
+Mantle allows you to add custom fields to your plans for flexible customization. Use these to control component behavior without code changes.
+
+### Recommended plans
+
+Mark a plan as recommended using a custom field:
+
+```jsx
+// In your Mantle dashboard, add a custom field to a plan:
+// Key: "recommended"
+// Value: true
+
+// In your component:
+<HorizontalPlanCards
+  customer={customer}
+  plans={plans}
+  onSubscribe={handleSubscribe}
+  keyForRecommended="recommended"  // Matches the custom field key
+  showRecommendedBadge={true}
+/>
+```
+
+<Tip>
+  You can use any custom field key name. If you prefer "popular" or "best-value" as the key, just update the `keyForRecommended` prop to match.
+</Tip>
+
+### Custom CTA labels
+
+Customize the call-to-action button text per plan:
+
+```jsx
+// In Mantle dashboard custom fields:
+// Plan 1: Key: "cta", Value: "Start free trial"
+// Plan 2: Key: "cta", Value: "Get started"
+// Plan 3: Key: "cta", Value: "Contact sales"
+
+// In your component:
+<HorizontalPlanCards
+  customer={customer}
+  plans={plans}
+  onSubscribe={handleSubscribe}
+  customFieldCta="cta"  // Custom field key for button labels
+/>
+```
+
+<ParamField path="customFieldCta" type="string">
+  The custom field key to check for button label overrides. If a plan has this custom field, its value will be used as the button text instead of the default "Subscribe" or "Select plan".
+</ParamField>
+
+### Custom field examples
+
+Common custom field patterns:
+
+<Tabs>
+  <Tab title="Recommended badge">
+    ```json
+    {
+      "key": "recommended",
+      "value": true
+    }
+    ```
+    
+    Use with `keyForRecommended="recommended"`
+  </Tab>
+  <Tab title="Custom CTA">
+    ```json
+    {
+      "key": "cta",
+      "value": "Start 14-day trial"
+    }
+    ```
+    
+    Use with `customFieldCta="cta"`
+  </Tab>
+  <Tab title="Badge text override">
+    ```json
+    {
+      "key": "badge",
+      "value": "Most Popular"
+    }
+    ```
+    
+    Use with `keyForRecommended="badge"` to show "Most Popular" instead of "Recommended"
+  </Tab>
+</Tabs>
+
+## Subscription summary customization
+
+Customize the subscription management card:
+
+```jsx
+import { SubscriptionSummaryCard } from "@heymantle/polaris";
+
+function AccountPage() {
+  return (
+    <SubscriptionSummaryCard
+      subscription={subscription}
+      orientation="horizontal"  // "horizontal" | "vertical"
+      hideSelectPlanButton={false}
+      onShowPlans={() => navigate('/plans')}
+      onCancelPlan={handleCancel}  // Optional: custom cancel flow
+      cancelSubscription={cancelSubscription}  // Default cancel flow
+      refetch={refetch}
+    />
+  );
+}
+```
+
+<ParamField path="orientation" type="string" default="horizontal">
+  Controls the layout of subscription details:
+  - `"horizontal"` - Details displayed side-by-side (better for desktop)
+  - `"vertical"` - Details stacked vertically (better for mobile)
+</ParamField>
+
+<ParamField path="hideSelectPlanButton" type="boolean" default="false">
+  When `true`, hides the "Change plan" button. Useful if you want users to contact support for plan changes.
+</ParamField>
+
+<ParamField path="onCancelPlan" type="function">
+  Optional callback for custom cancellation flow. If provided, overrides the default cancellation modal.
+</ParamField>
+
+## Checklist customization
+
+Customize the checklist card for onboarding or task tracking:
+
+```jsx
+import { ChecklistCard } from "@heymantle/polaris";
+
+function OnboardingPage() {
+  const [steps, setSteps] = useState([
+    { 
+      id: 1, 
+      name: "Install the app", 
+      description: "Add our app to your store",
+      completed: true 
+    },
+    { 
+      id: 2, 
+      name: "Configure settings", 
+      description: "Set up your preferences",
+      completed: false 
+    },
+    { 
+      id: 3, 
+      name: "Invite team members", 
+      description: "Share access with your team",
+      completed: false 
+    },
+  ]);
+
+  return (
+    <ChecklistCard
+      title="Getting Started"
+      steps={steps}
+      showProgress={true}
+      showProgressText={true}
+      hideCompleted={false}
+      allowExpandCompleted={true}
+      showDescription={true}
+      enableDescriptionModal={false}
+      completionMessage="All done! You're ready to go."
+      noItemsMessage="No tasks yet."
+    />
+  );
+}
+```
+
+<ParamField path="title" type="string" default="Checklist">
+  The heading displayed at the top of the checklist card.
+</ParamField>
+
+<ParamField path="steps" type="array" required>
+  Array of step objects with `id`, `name`, `description`, and `completed` properties.
+</ParamField>
+
+<ParamField path="showProgress" type="boolean" default="true">
+  Shows a visual progress bar at the top of the checklist.
+</ParamField>
+
+<ParamField path="showProgressText" type="boolean" default="true">
+  Shows the completion text (e.g., "2 of 5 completed") above the progress bar.
+</ParamField>
+
+<ParamField path="hideCompleted" type="boolean" default="false">
+  When `true`, hides completed items from view to focus on remaining tasks.
+</ParamField>
+
+<ParamField path="allowExpandCompleted" type="boolean" default="true">
+  When `hideCompleted` is `true`, shows a button to expand and view completed items.
+</ParamField>
+
+<ParamField path="showDescription" type="boolean" default="true">
+  Shows step descriptions inline below the step name.
+</ParamField>
+
+<ParamField path="enableDescriptionModal" type="boolean" default="false">
+  When `true`, step names become clickable and show descriptions in a modal instead of inline.
+</ParamField>
+
+<ParamField path="completionMessage" type="string | JSX.Element" default="All items completed!">
+  Message shown when all items are complete and hidden. Can be a string or custom JSX.
+</ParamField>
+
+<ParamField path="noItemsMessage" type="string | JSX.Element" default="No items in this checklist yet.">
+  Message shown when the checklist has no items. Can be a string or custom JSX.
+</ParamField>
+
+## Internationalization
+
+Support multiple languages by providing translation functions:
+
+```jsx
+import { VerticalPlanCards } from "@heymantle/polaris";
+import { useTranslation } from 'react-i18next';
+
+function PricingPage() {
+  const { t } = useTranslation();
+
+  return (
+    <VerticalPlanCards
+      customer={customer}
+      plans={plans}
+      onSubscribe={handleSubscribe}
+      t={t}  // Translation function
+      translatePlanName={true}  // Translate plan names
+    />
+  );
+}
+```
+
+<ParamField path="t" type="function">
+  Translation function that accepts a key and returns the translated string. Compatible with i18next and similar libraries.
+</ParamField>
+
+<ParamField path="translatePlanName" type="boolean" default="true">
+  When `true`, passes plan names through the translation function. Set to `false` if plan names should always display as-is.
+</ParamField>
+
+### Translation keys
+
+Mantle components use these default label keys from `@heymantle/react`:
+
+- `Plans`
+- `Monthly` / `Yearly` / `Year`
+- `Back`
+- `Subscribe` / `SelectPlan` / `ChangePlan`
+- `CurrentPlan` / `CustomPlans`
+- `CancelPlan` / `CancelConfirmation`
+- `Price` / `Subscription`
+- `SubscribeSuccessTitle` / `SubscribeSuccessBody`
+
+Provide translations for these keys in your i18n configuration.
+
+## Conditional rendering
+
+Show different components based on subscription status:
+
+```jsx
+import { useMantle } from "@heymantle/react";
+import { HorizontalPlanCards, SubscriptionSummaryCard } from "@heymantle/polaris";
+
+function BillingPage() {
+  const { customer, subscription, plans, subscribe, cancelSubscription } = useMantle();
+
+  if (subscription?.active) {
+    return (
+      <Page title="Your Subscription">
+        <Layout>
+          <Layout.Section>
+            <SubscriptionSummaryCard
+              subscription={subscription}
+              onShowPlans={() => setShowPlans(true)}
+              cancelSubscription={cancelSubscription}
+            />
+          </Layout.Section>
+        </Layout>
+      </Page>
+    );
+  }
+
+  return (
+    <HorizontalPlanCards
+      customer={customer}
+      plans={plans}
+      onSubscribe={async ({ planId, discountId }) => {
+        const sub = await subscribe({ planId, discountId });
+        window.open(sub.confirmationUrl, "_top");
+      }}
+    />
+  );
+}
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Styling guide" icon="palette" href="/guides/styling">
+    Learn how to apply custom styles and work with Polaris themes
+  </Card>
+  <Card title="Component reference" icon="grid" href="/components/overview">
+    Explore all available components
+  </Card>
+  <Card title="API reference" icon="code" href="/api/horizontal-plan-cards">
+    Detailed prop documentation for each component
+  </Card>
+  <Card title="Integration guide" icon="plug" href="/guides/integration">
+    Complete setup and integration instructions
+  </Card>
+</CardGroup>

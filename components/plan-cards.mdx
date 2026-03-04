@@ -1,0 +1,284 @@
+---
+title: Plan Card Components
+description: Display pricing plans with three different layout options - horizontal, vertical, and highlighted
+---
+
+Mantle Polaris provides three plan card components, each optimized for different use cases and design preferences. All three components share similar props and functionality but differ in their visual presentation.
+
+## Component Variants
+
+<CardGroup cols={3}>
+  <Card title="Horizontal" icon="bars">
+    Full-width cards stacked vertically. Best for detailed feature lists.
+  </Card>
+  
+  <Card title="Vertical" icon="table-columns">
+    Side-by-side cards in a grid. Classic pricing table layout.
+  </Card>
+  
+  <Card title="Highlighted" icon="star">
+    Premium design with visual emphasis. Great for highlighting recommended plans.
+  </Card>
+</CardGroup>
+
+## When to Use Each Variant
+
+### HorizontalPlanCards
+
+Use horizontal cards when:
+- You have many features to display per plan
+- You want to emphasize feature comparisons
+- You have 2-4 plans to display
+- Mobile users are your primary audience
+
+### VerticalPlanCards
+
+Use vertical cards when:
+- You want a traditional pricing table look
+- You have 3-4 plans to compare side-by-side
+- Feature lists are concise
+- Desktop is your primary platform
+
+### HighlightedPlanCards
+
+Use highlighted cards when:
+- You want to emphasize a recommended plan
+- Visual impact is important
+- You want to maximize conversions
+- You have a clear plan hierarchy
+
+## Basic Usage
+
+<Tabs>
+  <Tab title="Horizontal">
+    ```jsx
+    import { HorizontalPlanCards } from '@heymantle/polaris';
+    import { useMantle } from '@heymantle/react';
+
+    function PlansPage() {
+      const { customer, plans, subscribe } = useMantle();
+
+      return (
+        <HorizontalPlanCards
+          customer={customer}
+          plans={plans}
+          onSubscribe={subscribe}
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Vertical">
+    ```jsx
+    import { VerticalPlanCards } from '@heymantle/polaris';
+    import { useMantle } from '@heymantle/react';
+
+    function PlansPage() {
+      const { customer, plans, subscribe } = useMantle();
+
+      return (
+        <VerticalPlanCards
+          customer={customer}
+          plans={plans}
+          onSubscribe={subscribe}
+        />
+      );
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Highlighted">
+    ```jsx
+    import { HighlightedPlanCards } from '@heymantle/polaris';
+    import { useMantle } from '@heymantle/react';
+
+    function PlansPage() {
+      const { customer, plans, subscribe } = useMantle();
+
+      return (
+        <HighlightedPlanCards
+          customer={customer}
+          plans={plans}
+          onSubscribe={subscribe}
+        />
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  All plan card components render a complete Shopify Polaris `Page` component, including title and navigation. They're designed to be the main content of your pricing route.
+</Note>
+
+## Common Props
+
+All three plan card components accept the same props:
+
+### Required Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `customer` | `Object` | Customer object from `useMantle()` hook |
+| `plans` | `Array` | Array of plan objects from `useMantle()` hook |
+| `onSubscribe` | `Function` | Callback function when user selects a plan |
+
+### Optional Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `backUrl` | `string` | `""` | URL for back button. Empty string hides button |
+| `showRecommendedBadge` | `boolean` | `true` | Show "Recommended" badge on highlighted plans |
+| `customFieldCta` | `string` | `null` | Custom field key for CTA button text |
+| `customFieldPlanRecommended` | `string` | `"Recommended"` | Custom field key to identify recommended plans |
+| `showPlanIntervalToggle` | `boolean` | `true` | Show monthly/yearly toggle button |
+| `showTrialDaysAsFeature` | `boolean` | `true` | Display trial period in feature list |
+| `useShortFormPlanIntervals` | `boolean` | varies | Use "mo" instead of "month" (default: false for Horizontal, true for others) |
+| `pageWidth` | `string` | `"default"` | Page width: "full", "narrow", or "default" |
+| `showCustomPlans` | `boolean` | `true` | Display custom/private plans section |
+| `toggleYearlySubtitle` | `boolean` | `false` | Show monthly equivalent pricing for annual plans |
+| `showFeatureDescriptionAsTooltip` | `boolean` | `true` | Show feature descriptions as tooltips |
+
+## Advanced Configuration
+
+### Custom CTA Buttons
+
+You can customize the call-to-action button text for each plan using custom fields:
+
+```jsx
+<HorizontalPlanCards
+  customer={customer}
+  plans={plans}
+  onSubscribe={subscribe}
+  customFieldCta="cta"
+/>
+```
+
+Then in your Mantle dashboard, add a custom field named "cta" to your plans with values like:
+- "Start Free Trial"
+- "Upgrade Now"
+- "Get Started"
+
+### Marking Recommended Plans
+
+Highlight your best-value plan with a recommended badge:
+
+```jsx
+<HighlightedPlanCards
+  customer={customer}
+  plans={plans}
+  onSubscribe={subscribe}
+  showRecommendedBadge={true}
+  customFieldPlanRecommended="recommended"
+/>
+```
+
+Add a custom field named "recommended" with value "true" to the plan you want to highlight.
+
+### Plan Interval Toggle
+
+If you offer both monthly and annual plans, enable the interval toggle:
+
+```jsx
+<VerticalPlanCards
+  customer={customer}
+  plans={plans}
+  onSubscribe={subscribe}
+  showPlanIntervalToggle={true}
+  toggleYearlySubtitle={true}
+/>
+```
+
+<Note>
+  The toggle only appears if you have plans with both `PlanInterval.Every30Days` and `PlanInterval.Annual` intervals.
+</Note>
+
+### Page Width Options
+
+Control the page width to match your app's layout:
+
+```jsx
+<HorizontalPlanCards
+  customer={customer}
+  plans={plans}
+  onSubscribe={subscribe}
+  pageWidth="full" // "full", "narrow", or "default"
+/>
+```
+
+- **full** - Edge-to-edge layout
+- **narrow** - Constrained width for better readability
+- **default** - Standard Polaris page width
+
+### Handling Custom Plans
+
+Plans with availability other than "public" are automatically grouped in a "Custom Plans" section:
+
+```jsx
+<VerticalPlanCards
+  customer={customer}
+  plans={plans}
+  onSubscribe={subscribe}
+  showCustomPlans={true}
+/>
+```
+
+Set `showCustomPlans={false}` to hide private, customer-specific, or tag-based plans.
+
+## Success Banner
+
+All plan card components automatically show a success banner when the URL contains `?subscribed=true`. This provides immediate feedback after a successful subscription.
+
+```jsx
+// After successful subscription, redirect to:
+window.location.href = '/plans?subscribed=true';
+```
+
+The banner displays:
+- Success title from `Labels.SubscribeSuccessTitle`
+- Success message from `Labels.SubscribeSuccessBody`
+- Dismissible with automatic URL cleanup
+
+## Code Examples from Source
+
+Here's how the components handle plan interval toggling (from HorizontalPlanCards.js:40-46):
+
+```jsx
+const [planInterval, setPlanInterval] = useState(
+  currentPlan
+    ? currentPlan.interval
+    : hasMonthlyAndYearlyPlans
+    ? PlanInterval.Annual
+    : PlanInterval.Every30Days
+);
+```
+
+The components automatically:
+1. Default to the customer's current plan interval if they're subscribed
+2. Otherwise default to annual if both intervals are available
+3. Otherwise default to monthly
+
+## Best Practices
+
+<Warning>
+  Always pass the `customer` object from `useMantle()` even if the user isn't subscribed. The components need this to determine subscription state and highlight the current plan.
+</Warning>
+
+1. **Use recommended badges strategically** - Only mark one plan as recommended
+2. **Keep feature lists concise** - 5-8 features per plan is ideal
+3. **Show trial periods** - Trial badges increase conversions
+4. **Enable interval toggle** - Annual plans typically have better retention
+5. **Provide a back button** - If plans page isn't your main navigation
+
+## Related Components
+
+<CardGroup cols={2}>
+  <Card title="Subscription Summary" icon="file-invoice" href="/components/subscription-summary">
+    Show current subscription details and manage upgrades
+  </Card>
+  
+  <Card title="API Reference" icon="code" href="/api/horizontal-plan-cards">
+    Complete prop documentation for all plan card variants
+  </Card>
+</CardGroup>

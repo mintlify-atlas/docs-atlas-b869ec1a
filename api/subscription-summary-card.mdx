@@ -1,0 +1,216 @@
+---
+title: "SubscriptionSummaryCard"
+description: "Display current subscription details with management options"
+---
+
+The `SubscriptionSummaryCard` component displays the customer's current subscription information, including plan details, pricing, discounts, usage charges, and actions to change or cancel the subscription.
+
+## Usage
+
+```jsx
+import { SubscriptionSummaryCard } from '@heymantle/polaris';
+
+function SubscriptionPage() {
+  return (
+    <SubscriptionSummaryCard
+      orientation="horizontal"
+      subscription={subscription}
+      onShowPlans={() => {
+        // Navigate to plans page
+        navigate('/plans');
+      }}
+      onCancelPlan={() => {
+        // Handle cancel plan logic
+      }}
+      onPlanCancelled={() => {
+        // Handle post-cancellation logic
+        console.log('Plan cancelled');
+      }}
+      cancelSubscription={async () => {
+        // Call API to cancel subscription
+        await api.cancelSubscription();
+      }}
+      refetch={async () => {
+        // Refetch subscription data
+        await refetchSubscription();
+      }}
+      translatePlanName={true}
+      hideSelectPlanButton={false}
+    />
+  );
+}
+```
+
+## Props
+
+<ParamField path="subscription" type="object">
+  The subscription object containing plan details, pricing, and status. If `null` or `undefined`, displays a "Not subscribed" state with a button to select a plan.
+  
+  Expected structure:
+  ```javascript
+  {
+    plan: {
+      id: string,
+      name: string,
+      interval: "EVERY_30_DAYS" | "ANNUAL",
+      presentmentCurrencyCode: string,
+      usageCharges: [{
+        terms: string
+      }]
+    },
+    presentmentTotal: number,
+    cancelOn: string | null,
+    appliedDiscount: {
+      discount: {
+        percentage: number | null,
+        presentmentAmount: number | null
+      },
+      discountEndsAt: string | null
+    } | null
+  }
+  ```
+</ParamField>
+
+<ParamField path="orientation" type="string" default="horizontal">
+  Layout orientation for content blocks. Options:
+  - `"horizontal"`: Display plan info, price, and usage charges side-by-side
+  - `"vertical"`: Stack content blocks vertically
+  
+  Note: On mobile screens, the layout automatically switches to vertical regardless of this setting.
+</ParamField>
+
+<ParamField path="onShowPlans" type="function" required>
+  Callback function triggered when the user clicks "Select Plan" (no subscription) or "Change Plan" (active subscription). Use this to navigate to your plan selection page.
+  
+  ```javascript
+  () => void
+  ```
+</ParamField>
+
+<ParamField path="onCancelPlan" type="function">
+  Optional callback function triggered when the user clicks the "Cancel Plan" button. If provided, takes precedence over the built-in cancellation modal. If not provided, the component displays its own cancellation confirmation modal.
+  
+  ```javascript
+  () => void
+  ```
+</ParamField>
+
+<ParamField path="onPlanCancelled" type="function" default="() => {}">
+  Callback function triggered after a plan is successfully cancelled. Use this for post-cancellation actions like showing a notification or updating UI state.
+  
+  ```javascript
+  () => void
+  ```
+</ParamField>
+
+<ParamField path="cancelSubscription" type="async function" default="async () => {}">
+  Async function that performs the actual subscription cancellation API call. Only used when the built-in cancellation modal is active (i.e., when `onCancelPlan` is not provided).
+  
+  ```javascript
+  async () => Promise<void>
+  ```
+</ParamField>
+
+<ParamField path="refetch" type="async function" default="async () => {}">
+  Async function to refetch subscription data after cancellation. Called automatically after `cancelSubscription` completes.
+  
+  ```javascript
+  async () => Promise<void>
+  ```
+</ParamField>
+
+<ParamField path="i18n" type="object">
+  Internationalization object for custom labels. Extends the default labels from `@heymantle/react`.
+  
+  Available keys:
+  ```javascript
+  {
+    Subscription: string,
+    NotSubscribed: string,
+    SelectPlan: string,
+    ChangePlan: string,
+    CancelPlan: string,
+    CurrentPlan: string,
+    Price: string,
+    AmountPerInterval: string,  // Use {{ amount }} and {{ interval }} placeholders
+    DiscountAmount: string,     // Use {{ amount }} placeholder
+    DiscountAmountExpired: string,
+    UsageCharges: string,
+    CancelConfirmation: string,
+    Back: string,
+    Year: string,
+    Month: string
+  }
+  ```
+</ParamField>
+
+<ParamField path="t" type="function">
+  Translation function for internationalization. Should accept a string key and return the translated string.
+  
+  ```javascript
+  (key: string) => string
+  ```
+  
+  If not provided, keys are returned as-is without translation.
+</ParamField>
+
+<ParamField path="translatePlanName" type="boolean" default={true}>
+  Whether to pass plan names through the translation function. Set to `false` to display plan names exactly as provided in the subscription object.
+</ParamField>
+
+<ParamField path="hideSelectPlanButton" type="boolean" default={false}>
+  Whether to hide the "Select Plan" (no subscription) or "Change Plan" (active subscription) button. Useful if you want to manage plan selection through a different UI.
+</ParamField>
+
+## Features
+
+### No Subscription State
+
+When `subscription` is `null` or `undefined`, the component displays a simplified card with:
+- "Not subscribed" message
+- "Select Plan" button (if `hideSelectPlanButton={false}`)
+
+### Active Subscription Display
+
+For active subscriptions, the component shows:
+- Current plan name
+- Pricing with interval (e.g., "$29.99/month")
+- Active discount information with expiration handling
+- Usage charges (if applicable)
+- Cancel and change plan buttons
+
+### Discount Handling
+
+The component intelligently displays discounts:
+- Shows discount amount (percentage or fixed amount)
+- Displays in green if active
+- Shows struck-through if expired
+- Calculates expiration using `dayjs`
+
+### Cancellation Modal
+
+When `onCancelPlan` is not provided, the component includes a built-in cancellation confirmation modal with:
+- Confirmation message
+- Cancel and back buttons
+- Loading state during cancellation
+- Automatic data refetch after cancellation
+
+### Cancelled Subscription Handling
+
+If the subscription has a `cancelOn` date (scheduled cancellation), the component:
+- Shows the cancellation date ("Canceled, active until [date]")
+- Disables the "Cancel Plan" button
+
+### Usage Charges Display
+
+If the plan includes usage charges, they are displayed in a separate column (horizontal) or section (vertical) with the terms for each charge.
+
+### Responsive Layout
+
+The `orientation` prop controls the layout on larger screens, but automatically switches to vertical stacking on mobile devices for optimal readability.
+
+## Related Components
+
+- [HorizontalPlanCards](/api/horizontal-plan-cards) - Display plan selection UI
+- [VerticalPlanCards](/api/vertical-plan-cards) - Alternative plan selection layout
+- [HighlightedPlanCards](/api/highlighted-plan-cards) - Plan selection with highlighted recommendation

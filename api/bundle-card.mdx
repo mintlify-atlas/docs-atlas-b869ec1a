@@ -1,0 +1,219 @@
+---
+title: "BundleCard"
+description: "Display promotional app bundle offers with install actions"
+---
+
+The `BundleCard` component renders a promotional banner showcasing a bundle of complementary apps that customers can install to save money on their subscription. It displays app icons, descriptions, and install buttons.
+
+## Usage
+
+```jsx
+import { BundleCard } from '@heymantle/polaris';
+
+function BundleOffers() {
+  const bundleApps = [
+    {
+      name: 'Email Marketing Pro',
+      description: 'Send automated email campaigns to your customers',
+      iconUrl: 'https://example.com/email-app-icon.png'
+    },
+    {
+      name: 'Inventory Sync',
+      description: 'Keep your inventory synchronized across platforms',
+      iconUrl: 'https://example.com/inventory-app-icon.png'
+    },
+    {
+      name: 'Analytics Dashboard',
+      description: 'Advanced analytics and reporting for your store',
+      iconUrl: 'https://example.com/analytics-app-icon.png'
+    }
+  ];
+
+  return (
+    <BundleCard
+      orientation="horizontal"
+      apps={bundleApps}
+      i18n={{
+        Install: 'Install App'
+      }}
+      subscription={subscription}
+      onShowPlans={() => navigate('/plans')}
+      onCancelPlan={() => handleCancel()}
+      onPlanCancelled={() => console.log('Cancelled')}
+      cancelSubscription={async () => await api.cancel()}
+      refetch={async () => await refetchData()}
+    />
+  );
+}
+```
+
+## Props
+
+<ParamField path="apps" type="array" default="[]">
+  Array of app objects to display in the bundle. Each app should include:
+  
+  ```javascript
+  [{
+    name: string,          // Display name of the app
+    description: string,   // Short description of the app
+    iconUrl: string        // URL to the app's icon image
+  }]
+  ```
+</ParamField>
+
+<ParamField path="i18n" type="object" required>
+  Internationalization object containing labels for the component. Must include:
+  
+  ```javascript
+  {
+    Install: string  // Label for the install button (e.g., "Install", "Add App", "Get Started")
+  }
+  ```
+</ParamField>
+
+<ParamField path="orientation" type="string" default="horizontal">
+  Layout orientation for the bundle card content. Options:
+  - `"horizontal"`: Display apps in a horizontal layout
+  - `"vertical"`: Stack apps vertically
+  
+  <Info>Note: This prop is currently not actively used in the component implementation but is available for future enhancements.</Info>
+</ParamField>
+
+<ParamField path="subscription" type="object">
+  The customer's subscription object. While this prop is accepted, it's not currently used in the component's rendering logic.
+  
+  Expected structure:
+  ```javascript
+  {
+    plan: { id: string },
+    active: boolean,
+    cancelOn: string | null
+  }
+  ```
+</ParamField>
+
+<ParamField path="onShowPlans" type="function">
+  Callback function for navigating to the plans page. This prop is accepted but not currently used in the component.
+  
+  ```javascript
+  () => void
+  ```
+</ParamField>
+
+<ParamField path="onCancelPlan" type="function">
+  Callback function for handling plan cancellation. This prop is accepted but not currently used in the component.
+  
+  ```javascript
+  () => void
+  ```
+</ParamField>
+
+<ParamField path="onPlanCancelled" type="function" default="() => {}">
+  Callback function triggered after plan cancellation. This prop is accepted but not currently used in the component.
+  
+  ```javascript
+  () => void
+  ```
+</ParamField>
+
+<ParamField path="cancelSubscription" type="async function" default="async () => {}">
+  Async function for cancelling subscriptions. This prop is accepted but not currently used in the component.
+  
+  ```javascript
+  async () => Promise<void>
+  ```
+</ParamField>
+
+<ParamField path="refetch" type="async function" default="async () => {}">
+  Async function for refetching data. This prop is accepted but not currently used in the component.
+  
+  ```javascript
+  async () => Promise<void>
+  ```
+</ParamField>
+
+## Features
+
+### Success Banner
+
+The component is wrapped in a Polaris `Banner` with:
+- Title: "Bundle and save!"
+- Tone: `success` (green color scheme)
+- Promotional messaging about saving money
+
+### App Display
+
+Each app in the bundle is displayed with:
+- **Thumbnail**: Small app icon using Shopify Polaris `Thumbnail` component
+- **Name**: Bold heading with the app name
+- **Description**: Brief description of what the app does
+- **Discount Badge**: "20% off" text (currently hardcoded)
+- **Install Button**: Action button to install the app
+
+### Dividers
+
+Automatic dividers are inserted between apps (but not after the last app) to visually separate the bundle items.
+
+### Responsive Layout
+
+The component uses `InlineStack` with `space-between` alignment to create a responsive layout that adapts to different screen sizes.
+
+## Implementation Notes
+
+<Info>
+  **Current Limitations:**
+  - The discount percentage ("20% off") is hardcoded and not customizable via props
+  - The install button has no click handler implemented
+  - Several props (`subscription`, `onShowPlans`, etc.) are accepted but not used
+  - The component may be under active development
+</Info>
+
+<Warning>
+  You will need to implement the install button click handler yourself. Consider wrapping this component or extending it to add click handlers that integrate with your app installation flow.
+</Warning>
+
+Example wrapper with install handling:
+
+```jsx
+function BundleCardWithHandlers({ apps, ...props }) {
+  const handleInstall = (app) => {
+    console.log('Installing app:', app.name);
+    // Your installation logic here
+    window.open(app.installUrl, '_blank');
+  };
+
+  const appsWithHandlers = apps.map(app => ({
+    ...app,
+    onInstall: () => handleInstall(app)
+  }));
+
+  return <BundleCard apps={appsWithHandlers} {...props} />;
+}
+```
+
+## Customization Ideas
+
+### Dynamic Discount Percentage
+
+Modify the component to accept discount information per app:
+
+```jsx
+apps={[
+  {
+    name: 'Email Marketing Pro',
+    description: '...',
+    iconUrl: '...',
+    discount: '20%'  // Custom discount per app
+  }
+]}
+```
+
+### Custom Banner Content
+
+You can wrap or extend the component to customize the banner title and message.
+
+## Related Components
+
+- [SubscriptionSummaryCard](/api/subscription-summary-card) - Display current subscription details
+- [ChecklistCard](/api/checklist-card) - Display setup checklists
+- [HorizontalPlanCards](/api/horizontal-plan-cards) - Display plan selection options

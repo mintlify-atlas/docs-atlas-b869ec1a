@@ -1,0 +1,342 @@
+---
+title: "Integration Guide"
+description: "Complete guide to integrating Mantle Polaris into your Shopify app"
+---
+
+This guide walks you through integrating Mantle Polaris components into your Shopify app, from initial setup to building complete billing flows.
+
+## Prerequisites
+
+Before integrating Mantle Polaris, ensure you have:
+
+- A Shopify app built with React 18 or higher
+- Shopify Polaris 13.0.0 or higher installed
+- A Mantle account with an app ID
+- Customer identification set up server-side
+
+<Note>
+  Mantle Polaris is designed specifically for Shopify apps and requires the Shopify Polaris design system. If you're building a different type of application, check out [@heymantle/react](https://www.npmjs.com/package/@heymantle/react) for framework-agnostic components.
+</Note>
+
+## Installation
+
+<Steps>
+  <Step title="Install the package">
+    Add Mantle Polaris to your project:
+
+    ```bash npm
+    npm install @heymantle/polaris
+    ```
+
+    ```bash yarn
+    yarn add @heymantle/polaris
+    ```
+
+    ```bash pnpm
+    pnpm add @heymantle/polaris
+    ```
+
+    The package includes peer dependencies for `@shopify/polaris` and `react`. Make sure these are already installed in your project.
+  </Step>
+
+  <Step title="Import required dependencies">
+    Mantle Polaris components work alongside the core Mantle React library:
+
+    ```jsx
+    import { MantleProvider, useMantle } from "@heymantle/react";
+    import { HorizontalPlanCards, SubscriptionSummaryCard } from "@heymantle/polaris";
+    ```
+
+    <Tip>
+      The `@heymantle/react` package is automatically included as a dependency, so you don't need to install it separately.
+    </Tip>
+  </Step>
+</Steps>
+
+## Setting up MantleProvider
+
+The `MantleProvider` component is the foundation of your Mantle integration. It manages authentication, data fetching, and provides context to all Mantle components.
+
+### Basic setup
+
+Wrap your app component tree with `MantleProvider` after you have access to customer data:
+
+```jsx
+import { MantleProvider } from "@heymantle/react";
+import { useState, useEffect } from "react";
+
+function App() {
+  const [shop, setShop] = useState(null);
+
+  const fetchShop = async () => {
+    const response = await fetch('/api/shop');
+    setShop(await response.json());
+  };
+
+  useEffect(() => {
+    fetchShop();
+  }, []);
+
+  if (!shop) {
+    return <Loading />;
+  }
+
+  return (
+    <AppBridge config={shopifyConfig}>
+      <PolarisProvider>
+        <MantleProvider
+          appId={process.env.MANTLE_APP_ID}
+          customerApiToken={shop.mantleApiToken}
+          apiUrl={process.env.MANTLE_API_URL} // Optional: defaults to production
+        >
+          <YourAppRoutes />
+        </MantleProvider>
+      </PolarisProvider>
+    </AppBridge>
+  );
+}
+```
+
+### Provider configuration
+
+<ParamField path="appId" type="string" required>
+  Your Mantle application ID. Find this in your [Mantle dashboard](https://app.heymantle.com).
+</ParamField>
+
+<ParamField path="customerApiToken" type="string" required>
+  The customer-specific API token obtained from your server-side identification request. This token is returned when you identify a customer via the Mantle API.
+</ParamField>
+
+<ParamField path="apiUrl" type="string">
+  Optional API endpoint URL. Defaults to Mantle's production API. Use this for testing or custom deployments.
+</ParamField>
+
+<Warning>
+  Never expose your Mantle API secret key on the client side. The `customerApiToken` is safe to use in the browser as it's scoped to a specific customer.
+</Warning>
+
+## Using the useMantle hook
+
+Once `MantleProvider` is set up, use the `useMantle` hook to access customer data and perform billing operations throughout your app:
+
+```jsx
+import { useMantle } from "@heymantle/react";
+
+function DashboardPage() {
+  const { 
+    customer,           // Current customer object with subscription data
+    subscription,       // Active subscription (if any)
+    plans,             // Available plans for this customer
+    subscribe,         // Function to create a subscription
+    cancelSubscription, // Function to cancel the current subscription
+    updateUsageCharge, // Function to update usage-based charges
+    pushEvent          // Function to track analytics events
+  } = useMantle();
+
+  return (
+    <Page title="Dashboard">
+      {subscription ? (
+        <Text>You're on the {subscription.plan.name} plan</Text>
+      ) : (
+        <Text>No active subscription</Text>
+      )}
+    </Page>
+  );
+}
+```
+
+### Available hook properties
+
+<ResponseField name="customer" type="object">
+  The complete customer object including subscription status, usage data, and custom fields.
+</ResponseField>
+
+<ResponseField name="subscription" type="object | null">
+  The active subscription if one exists, including plan details, pricing, and billing cycle information.
+</ResponseField>
+
+<ResponseField name="plans" type="array">
+  Array of available plans filtered by customer eligibility, including pricing, features, and trial information.
+</ResponseField>
+
+<ResponseField name="subscribe" type="function">
+  Async function to create a new subscription. Returns a subscription object with a `confirmationUrl` for payment.
+</ResponseField>
+
+<ResponseField name="cancelSubscription" type="function">
+  Async function to cancel the active subscription.
+</ResponseField>
+
+<ResponseField name="updateUsageCharge" type="function">
+  Async function to update usage-based charges for the current billing period.
+</ResponseField>
+
+<ResponseField name="pushEvent" type="function">
+  Function to track custom analytics events to Mantle.
+</ResponseField>
+
+## Building a pricing page
+
+Here's a complete example of a pricing page using Mantle Polaris components:
+
+```jsx
+import { useMantle } from "@heymantle/react";
+import { HorizontalPlanCards } from "@heymantle/polaris";
+import { Page } from "@shopify/polaris";
+
+function PricingPage() {
+  const { customer, plans, subscribe } = useMantle();
+
+  const handleSubscribe = async ({ planId, discountId }) => {
+    try {
+      const subscription = await subscribe({ 
+        planId, 
+        discountId 
+      });
+      
+      // Redirect to Shopify's charge confirmation page
+      window.open(subscription.confirmationUrl, "_top");
+    } catch (error) {
+      console.error("Subscription failed:", error);
+    }
+  };
+
+  return (
+    <HorizontalPlanCards
+      customer={customer}
+      plans={plans}
+      onSubscribe={handleSubscribe}
+      showPlanIntervalToggle={true}
+      showRecommendedBadge={true}
+      backUrl="/"
+    />
+  );
+}
+```
+
+<Tip>
+  The `HorizontalPlanCards` component includes a full `Page` wrapper from Polaris, so you don't need to wrap it in another `Page` component.
+</Tip>
+
+## Building a subscription management page
+
+Combine the subscription summary card with upgrade options:
+
+```jsx
+import { useMantle } from "@heymantle/react";
+import { SubscriptionSummaryCard } from "@heymantle/polaris";
+import { Page, Layout } from "@shopify/polaris";
+import { useNavigate } from "react-router-dom";
+
+function SubscriptionPage() {
+  const { customer, subscription, cancelSubscription, refetch } = useMantle();
+  const navigate = useNavigate();
+
+  return (
+    <Page title="Your Subscription">
+      <Layout>
+        <Layout.Section>
+          <SubscriptionSummaryCard
+            subscription={subscription}
+            onShowPlans={() => navigate("/pricing")}
+            cancelSubscription={cancelSubscription}
+            refetch={refetch}
+          />
+        </Layout.Section>
+      </Layout>
+    </Page>
+  );
+}
+```
+
+## Handling subscription confirmation
+
+After a customer confirms their subscription with Shopify, they'll be redirected back to your app. Handle the return URL to show success feedback:
+
+```jsx
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Banner } from "@shopify/polaris";
+
+function PricingPage() {
+  const [searchParams] = useSearchParams();
+  const subscribed = searchParams.get("subscribed") === "true";
+
+  return (
+    <>
+      {subscribed && (
+        <Banner
+          tone="success"
+          title="Subscription activated!"
+          onDismiss={() => {
+            // Remove query param
+            window.history.replaceState({}, '', window.location.pathname);
+          }}
+        >
+          Your subscription is now active.
+        </Banner>
+      )}
+      
+      <HorizontalPlanCards {...props} />
+    </>
+  );
+}
+```
+
+<Note>
+  The `HorizontalPlanCards` and `VerticalPlanCards` components automatically show a success banner when `?subscribed=true` is in the URL.
+</Note>
+
+## Tracking analytics events
+
+Track user behavior and conversion events using the `pushEvent` function:
+
+```jsx
+import { useMantle } from "@heymantle/react";
+import { useEffect } from "react";
+
+function PricingPage() {
+  const { pushEvent } = useMantle();
+
+  useEffect(() => {
+    pushEvent({
+      eventName: 'pricing_page_viewed',
+      properties: {
+        path: window.location.pathname,
+        source: 'app_navigation'
+      }
+    });
+  }, []);
+
+  const handlePlanClick = (planId) => {
+    pushEvent({
+      eventName: 'plan_selected',
+      properties: {
+        planId,
+        timestamp: new Date().toISOString()
+      }
+    });
+  };
+
+  return (
+    // Your component JSX
+  );
+}
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Customization" icon="wand-magic-sparkles" href="/guides/customization">
+    Learn how to customize components with props, custom fields, and branding
+  </Card>
+  <Card title="Styling" icon="palette" href="/guides/styling">
+    Work with Polaris themes and custom CSS to match your brand
+  </Card>
+  <Card title="Component reference" icon="grid" href="/components/overview">
+    Explore all available components and their features
+  </Card>
+  <Card title="API documentation" icon="code" href="/api/horizontal-plan-cards">
+    Full API reference for all components and props
+  </Card>
+</CardGroup>

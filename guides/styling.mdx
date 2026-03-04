@@ -1,0 +1,527 @@
+---
+title: "Styling Guide"
+description: "Customize the appearance of Mantle Polaris components with themes and custom CSS"
+---
+
+Mantle Polaris components are built on Shopify's Polaris design system, ensuring a native look and feel in Shopify apps. This guide covers how to work with Polaris themes and add custom styling.
+
+## Working with Polaris themes
+
+Mantle Polaris components automatically inherit styling from your app's Polaris theme.
+
+### Theme integration
+
+Components respect Polaris theme settings including colors, typography, and spacing:
+
+```jsx
+import { AppProvider } from "@shopify/polaris";
+import { MantleProvider } from "@heymantle/react";
+import "@shopify/polaris/build/esm/styles.css";
+
+function App() {
+  return (
+    <AppProvider
+      i18n={translations}
+      theme={{
+        colorScheme: 'light',  // or 'dark'
+        // Other Polaris theme customizations
+      }}
+    >
+      <MantleProvider appId={appId} customerApiToken={token}>
+        <YourApp />
+      </MantleProvider>
+    </AppProvider>
+  );
+}
+```
+
+<Note>
+  Mantle Polaris components automatically adapt to light and dark themes set via Polaris `AppProvider`. No additional configuration needed.
+</Note>
+
+### Dark mode support
+
+Components automatically adjust to dark mode when enabled in Polaris:
+
+```jsx
+import { AppProvider } from "@shopify/polaris";
+
+function App() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  return (
+    <AppProvider
+      theme={{ colorScheme: isDarkMode ? 'dark' : 'light' }}
+      i18n={translations}
+    >
+      {/* Your app with Mantle components */}
+    </AppProvider>
+  );
+}
+```
+
+All Mantle Polaris components follow Polaris design tokens, so they'll match your theme settings:
+
+- Background colors adapt to theme
+- Text colors maintain proper contrast
+- Borders and shadows adjust automatically
+- Interactive elements update hover/focus states
+
+## Component layout and spacing
+
+### Built-in layout options
+
+Plan card components include layout controls:
+
+```jsx
+import { HorizontalPlanCards } from "@heymantle/polaris";
+
+<HorizontalPlanCards
+  customer={customer}
+  plans={plans}
+  onSubscribe={handleSubscribe}
+  pageWidth="narrow"  // Controls page container width
+/>
+```
+
+The `pageWidth` prop uses Polaris page layout conventions:
+- `"default"` - Standard width (1280px max)
+- `"narrow"` - Focused width (1000px max)
+- `"full"` - Full viewport width
+
+### Grid behavior
+
+Plan cards automatically arrange in responsive grids:
+
+<Tabs>
+  <Tab title="HorizontalPlanCards">
+    Displays plans in columns based on count:
+    - 1 plan: Single column (full width)
+    - 2 plans: 2 columns on desktop, 1 on mobile
+    - 3 plans: 3 columns on desktop, 1 on mobile
+    - 4+ plans: 4 columns on desktop, 1 on mobile
+
+    ```jsx
+    <HorizontalPlanCards
+      customer={customer}
+      plans={plans}  // Grid adjusts automatically
+      onSubscribe={handleSubscribe}
+    />
+    ```
+  </Tab>
+  <Tab title="VerticalPlanCards">
+    Displays plans in a single-column vertical stack:
+
+    ```jsx
+    <VerticalPlanCards
+      customer={customer}
+      plans={plans}  // Always single column
+      onSubscribe={handleSubscribe}
+    />
+    ```
+  </Tab>
+  <Tab title="HighlightedPlanCards">
+    Highlights a recommended plan with expansion:
+
+    ```jsx
+    <HighlightedPlanCards
+      customer={customer}
+      plans={plans}  // Recommended plan gets more space
+      onSubscribe={handleSubscribe}
+    />
+    ```
+  </Tab>
+</Tabs>
+
+## Custom CSS styling
+
+### CSS class targeting
+
+While Mantle Polaris components use Polaris classes, you can add custom styles by targeting Polaris component classes:
+
+```css
+/* Custom styles for plan cards */
+.Polaris-Card {
+  /* Customize cards globally */
+}
+
+.Polaris-Page {
+  /* Customize page layout */
+}
+
+.Polaris-Button--primary {
+  /* Customize primary buttons */
+}
+```
+
+<Warning>
+  Targeting Polaris classes directly can break with Polaris updates. Use this approach sparingly and test after updates.
+</Warning>
+
+### Wrapper component approach
+
+For more maintainable customization, wrap Mantle components:
+
+```jsx
+import { HorizontalPlanCards } from "@heymantle/polaris";
+import { Box } from "@shopify/polaris";
+import "./CustomPricing.css";
+
+function CustomPricingPage() {
+  return (
+    <Box className="custom-pricing-wrapper">
+      <HorizontalPlanCards
+        customer={customer}
+        plans={plans}
+        onSubscribe={handleSubscribe}
+      />
+    </Box>
+  );
+}
+```
+
+```css
+/* CustomPricing.css */
+.custom-pricing-wrapper {
+  /* Your custom styles scoped to this wrapper */
+}
+
+.custom-pricing-wrapper .Polaris-Card {
+  /* Scoped card customizations */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+```
+
+### Custom card height
+
+Ensure consistent heights for plan cards:
+
+```css
+.Polaris-Grid-Cell .Polaris-Box {
+  height: 100%;
+}
+
+.Polaris-Card {
+  height: 100%;
+}
+```
+
+<Tip>
+  Mantle Polaris includes a minimal CSS file that ensures plan cards stretch to equal heights. You can import it or replicate the styles above.
+</Tip>
+
+## Responsive behavior
+
+### Mobile optimization
+
+Components automatically adapt to mobile viewports:
+
+```jsx
+<HorizontalPlanCards
+  customer={customer}
+  plans={plans}
+  onSubscribe={handleSubscribe}
+  // On mobile:
+  // - Cards stack vertically
+  // - Buttons become full width
+  // - Spacing reduces appropriately
+  // - Features list becomes more compact
+/>
+```
+
+### Breakpoint behavior
+
+Mantle Polaris uses Polaris grid breakpoints:
+
+| Breakpoint | Width | Behavior |
+|------------|-------|----------|
+| `xs` | 0-490px | Single column, full-width buttons |
+| `sm` | 491-767px | Single column, adjusted spacing |
+| `md` | 768-1039px | Multi-column grid begins |
+| `lg` | 1040px+ | Full multi-column grid |
+
+### Testing responsive layouts
+
+Test your integration across viewports:
+
+```jsx
+import { HorizontalPlanCards } from "@heymantle/polaris";
+
+function ResponsivePricing() {
+  return (
+    <HorizontalPlanCards
+      customer={customer}
+      plans={plans}
+      onSubscribe={handleSubscribe}
+      pageWidth="full"  // Test full-width layout
+    />
+  );
+}
+```
+
+## Customizing subscription summary
+
+The subscription summary card adapts its layout:
+
+```jsx
+import { SubscriptionSummaryCard } from "@heymantle/polaris";
+
+<SubscriptionSummaryCard
+  subscription={subscription}
+  orientation="horizontal"  // or "vertical" for mobile-first
+  onShowPlans={handleShowPlans}
+  cancelSubscription={cancelSubscription}
+/>
+```
+
+<ParamField path="orientation" type="string" default="horizontal">
+  - `"horizontal"` - Details side-by-side (better for desktop)
+  - `"vertical"` - Details stacked (better for narrow layouts)
+</ParamField>
+
+## Custom badge styling
+
+Recommended plan badges inherit from Polaris Badge component:
+
+```jsx
+// Badges automatically match your theme
+<HorizontalPlanCards
+  customer={customer}
+  plans={plans}
+  onSubscribe={handleSubscribe}
+  showRecommendedBadge={true}
+  // Badge will use Polaris success tone
+/>
+```
+
+To customize badge appearance:
+
+```css
+.Polaris-Badge {
+  /* Custom badge styles */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+```
+
+## Polaris component integration
+
+Mantle components work seamlessly with other Polaris components:
+
+```jsx
+import { Page, Layout, Card, Banner } from "@shopify/polaris";
+import { HorizontalPlanCards } from "@heymantle/polaris";
+
+function BillingPage() {
+  return (
+    <Page title="Billing">
+      <Layout>
+        <Layout.Section>
+          <Banner tone="info" title="Special offer">
+            Get 20% off annual plans this month!
+          </Banner>
+        </Layout.Section>
+        
+        <Layout.Section>
+          <HorizontalPlanCards
+            customer={customer}
+            plans={plans}
+            onSubscribe={handleSubscribe}
+          />
+        </Layout.Section>
+        
+        <Layout.Section>
+          <Card>
+            <p>Need a custom plan? Contact our sales team.</p>
+          </Card>
+        </Layout.Section>
+      </Layout>
+    </Page>
+  );
+}
+```
+
+<Note>
+  `HorizontalPlanCards`, `VerticalPlanCards`, and `HighlightedPlanCards` include their own `Page` wrapper. Use them as standalone page components or extract the inner grid for custom layouts.
+</Note>
+
+## Styling checklist cards
+
+The checklist component uses standard Polaris Card styling:
+
+```jsx
+import { ChecklistCard } from "@heymantle/polaris";
+import { Layout } from "@shopify/polaris";
+
+<Layout.Section>
+  <ChecklistCard
+    title="Getting Started"
+    steps={steps}
+    showProgress={true}
+    // Inherits theme colors for:
+    // - Progress bar (primary color)
+    // - Checkboxes (primary color)
+    // - Completed items (subdued text)
+  />
+</Layout.Section>
+```
+
+### Progress bar customization
+
+Customize the checklist progress bar:
+
+```css
+/* Target the progress bar */
+.Polaris-Card [style*="background-color: #006fbb"] {
+  background-color: #your-brand-color !important;
+}
+```
+
+Or wrap and scope:
+
+```jsx
+import { ChecklistCard } from "@heymantle/polaris";
+import "./CustomChecklist.css";
+
+function OnboardingSection() {
+  return (
+    <div className="custom-checklist">
+      <ChecklistCard steps={steps} />
+    </div>
+  );
+}
+```
+
+```css
+/* CustomChecklist.css */
+.custom-checklist .Polaris-Checkbox__Backdrop {
+  /* Customize checkbox appearance */
+}
+```
+
+## Bundle card styling
+
+Bundle cards use Polaris Banner with customizable content:
+
+```jsx
+import { BundleCard } from "@heymantle/polaris";
+
+<BundleCard
+  apps={[
+    {
+      name: "Partner App",
+      iconUrl: "/icon.png",
+      description: "Great complementary app"
+    }
+  ]}
+  i18n={{ Install: "Add to store" }}  // Customize button text
+/>
+```
+
+The component uses Polaris `Banner` with `tone="success"`, so it inherits your theme's success color.
+
+## CSS-in-JS alternative
+
+If you're using CSS-in-JS, wrap components with styled wrappers:
+
+```jsx
+import styled from "@emotion/styled";
+import { HorizontalPlanCards } from "@heymantle/polaris";
+
+const StyledPricingWrapper = styled.div`
+  .Polaris-Card {
+    border-radius: 16px;
+    transition: transform 0.2s;
+    
+    &:hover {
+      transform: translateY(-4px);
+    }
+  }
+  
+  .Polaris-Button--primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+  }
+`;
+
+function CustomPricing() {
+  return (
+    <StyledPricingWrapper>
+      <HorizontalPlanCards
+        customer={customer}
+        plans={plans}
+        onSubscribe={handleSubscribe}
+      />
+    </StyledPricingWrapper>
+  );
+}
+```
+
+## Best practices
+
+<AccordionGroup>
+  <Accordion title="Use Polaris tokens">
+    When adding custom styles, use Polaris design tokens for consistency:
+    
+    ```css
+    .custom-element {
+      padding: var(--p-space-400);  /* Polaris spacing */
+      color: var(--p-color-text);   /* Theme text color */
+      border-radius: var(--p-border-radius-200);
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Test theme changes">
+    Always test your customizations with both light and dark themes enabled to ensure proper contrast and visibility.
+  </Accordion>
+  
+  <Accordion title="Keep it maintainable">
+    Avoid deeply nested CSS selectors or highly specific overrides. Use wrapper components and scoped classes instead.
+  </Accordion>
+  
+  <Accordion title="Respect accessibility">
+    When customizing colors, ensure sufficient contrast ratios (4.5:1 for text, 3:1 for interactive elements) and maintain focus indicators.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Cards have different heights">
+    Ensure this CSS is applied:
+    
+    ```css
+    .Polaris-Grid-Cell .Polaris-Box {
+      height: 100%;
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Styles not applying">
+    Check CSS specificity. Polaris classes may have higher specificity than your custom rules. Use more specific selectors or `!important` as a last resort.
+  </Accordion>
+  
+  <Accordion title="Dark mode looks broken">
+    Verify you're using Polaris color variables instead of hard-coded colors. Hard-coded colors won't adapt to theme changes.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Customization guide" icon="wand-magic-sparkles" href="/guides/customization">
+    Learn about component props and behavior customization
+  </Card>
+  <Card title="Components overview" icon="grid" href="/components/overview">
+    Explore all available components
+  </Card>
+  <Card title="Polaris design system" icon="external-link" href="https://polaris.shopify.com">
+    Learn more about Shopify Polaris
+  </Card>
+  <Card title="Integration guide" icon="plug" href="/guides/integration">
+    Complete setup instructions
+  </Card>
+</CardGroup>

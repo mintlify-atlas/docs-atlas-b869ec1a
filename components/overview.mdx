@@ -1,0 +1,99 @@
+---
+title: Components Overview
+description: Overview of all available Mantle Polaris components for building Shopify app billing UIs
+---
+
+Mantle Polaris provides a comprehensive set of React components designed specifically for building beautiful, conversion-optimized billing interfaces in Shopify apps. All components are built with Shopify Polaris and follow Shopify's design guidelines.
+
+## Available Components
+
+<CardGroup cols={2}>
+  <Card title="Plan Cards" icon="credit-card" href="/components/plan-cards">
+    Display pricing plans in three different layouts: horizontal, vertical, and highlighted formats. Perfect for showcasing subscription tiers.
+  </Card>
+  
+  <Card title="Subscription Summary" icon="file-invoice" href="/components/subscription-summary">
+    Show current subscription details with options to upgrade, downgrade, or cancel. Displays pricing, plan name, and discount information.
+  </Card>
+  
+  <Card title="Checklist Card" icon="list-check" href="/components/checklist">
+    Create interactive onboarding checklists with progress tracking. Help users get started with your app quickly.
+  </Card>
+  
+  <Card title="Bundle Card" icon="box" href="/components/bundle-card">
+    Promote app bundles and cross-sell opportunities. Show users how they can save by installing complementary apps.
+  </Card>
+</CardGroup>
+
+## Component Categories
+
+### Plan Display Components
+
+These components help you present pricing plans to your users:
+
+- **HorizontalPlanCards** - Full-width plan cards stacked vertically, ideal for detailed feature comparisons
+- **VerticalPlanCards** - Traditional side-by-side plan cards in a grid layout
+- **HighlightedPlanCards** - Premium card design with visual emphasis on recommended plans
+
+### Subscription Management
+
+- **SubscriptionSummaryCard** - Display and manage active subscriptions with built-in cancellation flow
+
+### Engagement Components
+
+- **ChecklistCard** - Interactive checklists for onboarding and feature adoption
+- **BundleCard** - Promotional component for app bundles and cross-selling
+
+## Common Features
+
+All plan card components share these features:
+
+- Monthly/yearly interval toggle
+- Recommended plan badges
+- Custom CTA buttons
+- Trial period display
+- Discount indicators
+- Custom plan support
+- Shopify Polaris integration
+- Responsive design
+
+## Getting Started
+
+All components are exported from the main package:
+
+```jsx
+import {
+  HorizontalPlanCards,
+  VerticalPlanCards,
+  HighlightedPlanCards,
+  SubscriptionSummaryCard,
+  ChecklistCard,
+  BundleCard,
+} from '@heymantle/polaris';
+```
+
+<Note>
+  All components require the Mantle customer and plans data from the `@heymantle/react` hooks. See the [Getting Started](/getting-started) guide for setup instructions.
+</Note>
+
+## Design Philosophy
+
+Mantle Polaris components are designed with these principles:
+
+1. **Conversion-Optimized** - Layouts and designs proven to maximize subscription conversions
+2. **Shopify Native** - Built with Polaris components for seamless integration
+3. **Customizable** - Extensive props for customization without losing best practices
+4. **Accessible** - WCAG compliant and keyboard navigable
+5. **Mobile-First** - Responsive designs that work on all devices
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Plan Cards Guide" icon="arrow-right" href="/components/plan-cards">
+    Learn how to implement the three plan card variants
+  </Card>
+  
+  <Card title="API Reference" icon="code" href="/api/horizontal-plan-cards">
+    View detailed prop documentation for all components
+  </Card>
+</CardGroup>

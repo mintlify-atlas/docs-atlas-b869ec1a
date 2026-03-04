@@ -1,0 +1,358 @@
+---
+title: BundleCard
+description: Promote app bundles and cross-sell opportunities to increase customer lifetime value
+---
+
+The `BundleCard` component helps you promote complementary apps and bundle offers to your customers. It's designed to increase revenue through strategic cross-selling while providing value to users.
+
+## Features
+
+- Displays multiple apps in an attractive banner
+- Shows app icons, names, and descriptions
+- Discount indicators for each app
+- Install buttons for each app
+- Success tone banner styling
+- Clean, scannable layout
+- Responsive design
+
+## Basic Usage
+
+```jsx
+import { BundleCard } from '@heymantle/polaris';
+
+function SettingsPage() {
+  const apps = [
+    {
+      name: 'Email Marketing Pro',
+      description: 'Powerful email campaigns that convert',
+      iconUrl: 'https://example.com/app-icon-1.png',
+      installUrl: 'https://apps.shopify.com/app-1',
+    },
+    {
+      name: 'SMS Notifications',
+      description: 'Reach customers instantly with SMS',
+      iconUrl: 'https://example.com/app-icon-2.png',
+      installUrl: 'https://apps.shopify.com/app-2',
+    },
+  ];
+
+  return (
+    <BundleCard
+      apps={apps}
+      i18n={{ Install: 'Install App' }}
+    />
+  );
+}
+```
+
+## Props Reference
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `apps` | `Array` | `[]` | Array of app objects to display (see App Object below) |
+| `orientation` | `string` | `"horizontal"` | Layout orientation (currently only horizontal is implemented) |
+| `i18n` | `Object` | - | Internationalization labels, including `Install` button text |
+| `subscription` | `Object` | - | Current subscription object (reserved for future use) |
+| `onShowPlans` | `Function` | - | Callback for plan navigation (reserved for future use) |
+| `onCancelPlan` | `Function` | - | Callback for cancellation (reserved for future use) |
+| `onPlanCancelled` | `Function` | `() => {}` | Callback after cancellation (reserved for future use) |
+| `cancelSubscription` | `Function` | `async () => {}` | Async cancellation function (reserved for future use) |
+| `refetch` | `Function` | `async () => {}` | Async refetch function (reserved for future use) |
+
+### App Object
+
+Each app in the `apps` array should include:
+
+```typescript
+{
+  name: string;         // App display name
+  description: string;  // Short description of the app
+  iconUrl: string;      // URL to app icon image
+  installUrl?: string;  // Optional URL to installation page
+  discount?: string;    // Optional discount text (e.g., "20% off")
+}
+```
+
+## Component Structure
+
+The `BundleCard` renders as a Shopify Polaris `Banner` with success tone:
+
+```jsx
+<Banner title="Bundle and save!" tone="success">
+  {/* App list */}
+</Banner>
+```
+
+Each app is displayed with:
+- **Thumbnail** - App icon (small size)
+- **Name** - App title in heading style
+- **Description** - Brief description text
+- **Discount** - Discount text in subdued tone (currently hardcoded as "20% off")
+- **Install Button** - Call to action button
+
+## Layout
+
+Apps are separated by dividers for clear visual separation:
+
+```jsx
+// From source (BundleCard.js:33-56)
+<BlockStack gap="300">
+  {apps.map((app, index) => (
+    <BlockStack gap="300">
+      <InlineStack gap="200" align="space-between" blockAlign="center">
+        <InlineStack gap="300">
+          <Thumbnail source={app.iconUrl} alt={app.name} size="small" />
+          <BlockStack>
+            <Text variant="headingSm">{app.name}</Text>
+            <Text>{app.description}</Text>
+          </BlockStack>
+        </InlineStack>
+        <InlineStack gap="400">
+          <Text tone="subdued">20% off</Text>
+          <Button>{i18n.Install}</Button>
+        </InlineStack>
+      </InlineStack>
+      {index < apps.length - 1 && <Divider />}
+    </BlockStack>
+  ))}
+</BlockStack>
+```
+
+<Note>
+  The discount amount is currently hardcoded as "20% off" in the source code. Future versions may support dynamic discount values from the app object.
+</Note>
+
+## Use Cases
+
+### Cross-Sell Complementary Apps
+
+```jsx
+function SubscriptionPage() {
+  const { customer } = useMantle();
+  
+  // Show bundle only to subscribed users
+  if (!customer?.subscription) return null;
+
+  const complementaryApps = [
+    {
+      name: 'Advanced Analytics',
+      description: 'Deep insights into your store performance',
+      iconUrl: '/icons/analytics.png',
+    },
+    {
+      name: 'Customer Support Chat',
+      description: 'Real-time chat with your customers',
+      iconUrl: '/icons/chat.png',
+    },
+  ];
+
+  return (
+    <Layout.Section>
+      <BundleCard
+        apps={complementaryApps}
+        i18n={{ Install: 'Add to Store' }}
+      />
+    </Layout.Section>
+  );
+}
+```
+
+### Partner App Promotions
+
+```jsx
+function PartnershipsPage() {
+  const partnerApps = [
+    {
+      name: 'Partner App 1',
+      description: 'Exclusive offer for our users',
+      iconUrl: 'https://cdn.partner.com/icon.png',
+      installUrl: 'https://apps.shopify.com/partner-app',
+    },
+  ];
+
+  const handleInstall = (app) => {
+    // Track the referral
+    analytics.track('Partner App Install Started', {
+      appName: app.name,
+    });
+    
+    // Open installation URL
+    window.open(app.installUrl, '_blank');
+  };
+
+  return (
+    <BundleCard apps={partnerApps} />
+  );
+}
+```
+
+### Conditional Display
+
+Show bundles based on user tier or behavior:
+
+```jsx
+function DashboardPage() {
+  const { customer, plans } = useMantle();
+  const currentPlan = customer?.subscription?.plan;
+  
+  // Only show bundle to users on basic plan
+  if (currentPlan?.name !== 'Basic') return null;
+
+  const premiumApps = [
+    {
+      name: 'Premium Feature Pack',
+      description: 'Unlock advanced features',
+      iconUrl: '/icons/premium.png',
+    },
+  ];
+
+  return (
+    <BundleCard
+      apps={premiumApps}
+      i18n={{ Install: 'Upgrade' }}
+    />
+  );
+}
+```
+
+## Styling and Branding
+
+The component uses Shopify Polaris styling:
+
+- **Banner tone**: Success (green)
+- **Title**: "Bundle and save!"
+- **Spacing**: Consistent with Polaris design system
+- **Icons**: Small thumbnails (32x32px)
+- **Typography**: Polaris text variants
+
+### Customizing the Banner Title
+
+Currently the title is hardcoded. For custom titles, you may need to wrap the component:
+
+```jsx
+function CustomBundleCard({ title, ...props }) {
+  // Note: This requires modifying the source component
+  // or creating a wrapper
+  return <BundleCard {...props} />;
+}
+```
+
+## Best Practices
+
+1. **Keep it relevant** - Only show apps that complement your main app
+2. **Limit quantity** - 2-3 apps maximum for better conversion
+3. **Clear value proposition** - Make benefits obvious in descriptions
+4. **Use quality icons** - Ensure app icons are clear and professional
+5. **Strategic placement** - Show after users have experienced value
+6. **Track conversions** - Monitor which bundles perform best
+
+<Warning>
+  The BundleCard component is styled as a success banner, which should be used sparingly. Overuse of success-toned banners can reduce their impact and create visual clutter.
+</Warning>
+
+## When to Show Bundle Cards
+
+**Good times to show bundles:**
+- After user completes onboarding
+- On settings/account pages
+- When user reaches certain milestones
+- After successful subscription
+
+**Avoid showing bundles:**
+- During initial onboarding
+- On every page (banner fatigue)
+- Before user sees core app value
+- To users who just cancelled
+
+## Implementation Example
+
+```jsx
+import { BundleCard } from '@heymantle/polaris';
+import { useMantle } from '@heymantle/react';
+import { Page, Layout } from '@shopify/polaris';
+
+function SettingsPage() {
+  const { customer } = useMantle();
+  
+  const bundleApps = [
+    {
+      name: 'Marketing Automation',
+      description: 'Automate your email and SMS campaigns',
+      iconUrl: 'https://cdn.example.com/marketing-icon.png',
+      installUrl: 'https://apps.shopify.com/marketing-automation',
+    },
+    {
+      name: 'Inventory Management',
+      description: 'Track and manage your inventory efficiently',
+      iconUrl: 'https://cdn.example.com/inventory-icon.png',
+      installUrl: 'https://apps.shopify.com/inventory-management',
+    },
+  ];
+
+  const handleInstallClick = (app) => {
+    // Track analytics
+    window.gtag('event', 'bundle_app_click', {
+      app_name: app.name,
+    });
+
+    // Open in new tab
+    if (app.installUrl) {
+      window.open(app.installUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  // Only show to subscribed users who've been active for 7+ days
+  const showBundle = customer?.subscription && 
+    daysSinceInstall(customer) >= 7;
+
+  if (!showBundle) return null;
+
+  return (
+    <Page title="Settings">
+      <Layout>
+        <Layout.Section>
+          {/* Other settings content */}
+        </Layout.Section>
+        
+        <Layout.Section>
+          <BundleCard
+            apps={bundleApps}
+            i18n={{
+              Install: 'Learn More',
+            }}
+          />
+        </Layout.Section>
+      </Layout>
+    </Page>
+  );
+}
+
+function daysSinceInstall(customer) {
+  const installDate = new Date(customer.createdAt);
+  const today = new Date();
+  return Math.floor((today - installDate) / (1000 * 60 * 60 * 24));
+}
+```
+
+## Future Enhancements
+
+The component includes several props for future functionality:
+
+- Dynamic discount amounts
+- Integration with subscription data
+- Bundle-specific pricing logic
+- Cancellation recovery flows
+
+These props are currently unused but reserved for future updates.
+
+## Related Components
+
+<CardGroup cols={2}>
+  <Card title="Subscription Summary" icon="file-invoice" href="/components/subscription-summary">
+    Show bundles alongside subscription details
+  </Card>
+  
+  <Card title="Checklist Card" icon="list-check" href="/components/checklist">
+    Add bundle installation to onboarding checklists
+  </Card>
+</CardGroup>

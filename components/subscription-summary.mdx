@@ -1,0 +1,351 @@
+---
+title: SubscriptionSummaryCard
+description: Display current subscription details with options to change plans or cancel
+---
+
+The `SubscriptionSummaryCard` component displays the user's current subscription information, including plan name, pricing, discounts, usage charges, and provides actions to change or cancel the subscription.
+
+## Features
+
+- Displays current plan name and pricing
+- Shows active discounts with expiration tracking
+- Handles usage-based charges
+- Built-in cancellation flow with confirmation modal
+- Supports both horizontal and vertical layouts
+- Internationalization support
+- Customizable action buttons
+
+## Basic Usage
+
+```jsx
+import { SubscriptionSummaryCard } from '@heymantle/polaris';
+import { useMantle } from '@heymantle/react';
+
+function SettingsPage() {
+  const { customer, cancelSubscription, refetch } = useMantle();
+
+  return (
+    <SubscriptionSummaryCard
+      subscription={customer?.subscription}
+      onShowPlans={() => navigate('/plans')}
+      cancelSubscription={cancelSubscription}
+      refetch={refetch}
+    />
+  );
+}
+```
+
+## Props Reference
+
+### Required Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `subscription` | `Object` | Subscription object from customer data. Can be `null` for unsubscribed users |
+
+### Optional Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `orientation` | `string` | `"horizontal"` | Layout direction: "horizontal" or "vertical" |
+| `onShowPlans` | `Function` | - | Callback when user clicks "Change Plan" or "Select Plan" |
+| `onCancelPlan` | `Function` | - | Custom cancel handler. If not provided, uses built-in modal |
+| `onPlanCancelled` | `Function` | `() => {}` | Callback after successful cancellation |
+| `cancelSubscription` | `Function` | `async () => {}` | Async function to cancel subscription |
+| `refetch` | `Function` | `async () => {}` | Async function to refetch subscription data after changes |
+| `i18n` | `Object` | - | Custom internationalization labels |
+| `t` | `Function` | - | Translation function for plan names and labels |
+| `translatePlanName` | `boolean` | `true` | Whether to translate plan names |
+| `hideSelectPlanButton` | `boolean` | `false` | Hide the "Select Plan" or "Change Plan" button |
+
+## Display States
+
+### No Active Subscription
+
+When `subscription` is `null` or `undefined`, the component displays a "Not Subscribed" state:
+
+```jsx
+<SubscriptionSummaryCard
+  subscription={null}
+  onShowPlans={() => navigate('/plans')}
+/>
+```
+
+This shows:
+- "Subscription" heading
+- "Not subscribed" message
+- "Select Plan" button
+
+### Active Subscription
+
+When a subscription exists, the component displays:
+
+- Current plan name
+- Pricing per interval (monthly/yearly)
+- Active discount information
+- Usage charges (if applicable)
+- "Cancel Plan" button
+- "Change Plan" button
+
+### Cancelled Subscription
+
+For subscriptions with a `cancelOn` date:
+
+```jsx
+// Displays: "Canceled, active until [date]"
+```
+
+The cancel button is disabled to prevent duplicate cancellations.
+
+## Layout Orientations
+
+### Horizontal Layout (Default)
+
+```jsx
+<SubscriptionSummaryCard
+  subscription={subscription}
+  orientation="horizontal"
+  onShowPlans={() => navigate('/plans')}
+/>
+```
+
+Displays information in columns using `InlineGrid`. Best for wide layouts.
+
+### Vertical Layout
+
+```jsx
+<SubscriptionSummaryCard
+  subscription={subscription}
+  orientation="vertical"
+  onShowPlans={() => navigate('/plans')}
+/>
+```
+
+Stacks information vertically using `BlockStack`. Better for narrow layouts or mobile.
+
+## Pricing Display
+
+The component automatically formats pricing based on the plan interval:
+
+```jsx
+// From source (SubscriptionSummaryCard.js:78-79)
+const planAmount = money(subscription.presentmentTotal, plan.presentmentCurrencyCode);
+const planInterval = t(plan.interval === PlanInterval.Annual ? i18n.Year : i18n.Month);
+```
+
+Example output:
+- Monthly plan: "$29.99 / month"
+- Annual plan: "$299.99 / year"
+
+## Discount Handling
+
+The component displays active discounts and tracks expiration:
+
+```jsx
+// Shows discount amount (from SubscriptionSummaryCard.js:82-83)
+const discount = subscription?.appliedDiscount?.discount;
+const discountAmount = discount ? 
+  discount.percentage ? `${discount.percentage}%` : 
+  money(discount.presentmentAmount, plan.presentmentCurrencyCode) : null;
+```
+
+**Active Discount:**
+```
+Price: $29.99 / month
+20% off (shown in success tone)
+```
+
+**Expired Discount:**
+```
+Price: $29.99 / month
+20% off (shown with strikethrough)
+```
+
+## Usage Charges
+
+For plans with usage-based pricing, the component displays usage charge terms:
+
+```jsx
+<SubscriptionSummaryCard
+  subscription={subscription}
+  onShowPlans={() => navigate('/plans')}
+/>
+```
+
+If `plan.usageCharges.length > 0`, displays:
+- "Usage charges" heading
+- Terms for each usage charge
+- Appears in a third column (horizontal) or third row (vertical)
+
+## Cancellation Flow
+
+### Built-in Modal
+
+By default, the component provides a confirmation modal:
+
+```jsx
+<SubscriptionSummaryCard
+  subscription={subscription}
+  cancelSubscription={async () => {
+    await mantleClient.cancelSubscription();
+  }}
+  refetch={async () => {
+    await mantleClient.refetchCustomer();
+  }}
+  onPlanCancelled={() => {
+    console.log('Subscription cancelled');
+  }}
+/>
+```
+
+The modal:
+1. Shows confirmation message
+2. Has destructive "Cancel Plan" button
+3. Has secondary "Back" button
+4. Prevents accidental cancellations
+5. Shows loading state during cancellation
+6. Automatically refetches data
+7. Calls `onPlanCancelled` callback
+
+### Custom Cancellation Handler
+
+Provide your own cancellation flow:
+
+```jsx
+<SubscriptionSummaryCard
+  subscription={subscription}
+  onCancelPlan={() => {
+    // Your custom cancellation logic
+    showCustomCancellationModal();
+  }}
+/>
+```
+
+When `onCancelPlan` is provided, the built-in modal is bypassed.
+
+## Internationalization
+
+Customize labels using the `i18n` prop:
+
+```jsx
+<SubscriptionSummaryCard
+  subscription={subscription}
+  i18n={{
+    Subscription: 'Your Subscription',
+    CurrentPlan: 'Current Plan',
+    Price: 'Monthly Cost',
+    CancelPlan: 'Cancel Subscription',
+    ChangePlan: 'Switch Plans',
+    NotSubscribed: 'No active subscription',
+    SelectPlan: 'Choose a Plan',
+  }}
+  onShowPlans={() => navigate('/plans')}
+/>
+```
+
+### Translation Function
+
+For dynamic translations, use the `t` prop:
+
+```jsx
+<SubscriptionSummaryCard
+  subscription={subscription}
+  t={(key) => i18next.t(key)}
+  translatePlanName={true}
+  onShowPlans={() => navigate('/plans')}
+/>
+```
+
+## Code Example from Source
+
+Here's how the component handles the unsubscribed state (from SubscriptionSummaryCard.js:53-75):
+
+```jsx
+if (!subscription) {
+  return (
+    <Card>
+      <BlockStack gap="200">
+        <Text variant="headingMd">{t(i18n.Subscription)}</Text>
+        <Text>{t(i18n.NotSubscribed)}</Text>
+        <InlineStack align="end">
+          <ButtonGroup>
+            {!hideSelectPlanButton && (
+              <Button
+                variant="primary"
+                onClick={onShowPlans}
+                accessibilityLabel={t(i18n.ChangePlan)}
+              >
+                {t(i18n.SelectPlan)}
+              </Button>
+            )}
+          </ButtonGroup>
+        </InlineStack>
+      </BlockStack>
+    </Card>
+  )
+}
+```
+
+## Complete Example
+
+```jsx
+import { SubscriptionSummaryCard } from '@heymantle/polaris';
+import { useMantle } from '@heymantle/react';
+import { useNavigate } from 'react-router-dom';
+
+function AccountPage() {
+  const navigate = useNavigate();
+  const { customer, cancelSubscription, refetch } = useMantle();
+
+  return (
+    <Page title="Account Settings">
+      <Layout>
+        <Layout.Section>
+          <SubscriptionSummaryCard
+            subscription={customer?.subscription}
+            orientation="horizontal"
+            onShowPlans={() => navigate('/plans')}
+            cancelSubscription={cancelSubscription}
+            refetch={refetch}
+            onPlanCancelled={() => {
+              // Track cancellation
+              analytics.track('Subscription Cancelled');
+              // Show feedback
+              shopify.toast.show('Subscription cancelled');
+            }}
+            i18n={{
+              Subscription: 'Your Subscription',
+              CancelConfirmation: 'Are you sure you want to cancel? Your subscription will remain active until the end of the billing period.',
+            }}
+          />
+        </Layout.Section>
+      </Layout>
+    </Page>
+  );
+}
+```
+
+## Best Practices
+
+<Warning>
+  Always provide the `refetch` function to ensure the UI updates after cancellation. Without it, the component will continue showing stale subscription data.
+</Warning>
+
+1. **Show on settings page** - Place this component on your app's settings or account page
+2. **Provide navigation** - Always implement `onShowPlans` to let users change plans easily
+3. **Handle cancellations** - Use the `onPlanCancelled` callback to track metrics and provide feedback
+4. **Use horizontal layout for desktop** - Better information density
+5. **Use vertical layout for mobile** - Better readability on small screens
+6. **Customize labels** - Match your app's tone and terminology
+
+## Related Components
+
+<CardGroup cols={2}>
+  <Card title="Plan Cards" icon="credit-card" href="/components/plan-cards">
+    Link users to plan selection pages
+  </Card>
+  
+  <Card title="API Reference" icon="code" href="/api/subscription-summary-card">
+    Complete prop documentation
+  </Card>
+</CardGroup>

@@ -1,0 +1,180 @@
+---
+title: "VerticalPlanCards"
+description: "Display plan selection UI with vertically-oriented plan cards"
+---
+
+The `VerticalPlanCards` component renders a full-page plan selection interface with plans displayed as vertical cards. Each plan is shown as a full-width card with details, pricing, and a call-to-action button.
+
+## Usage
+
+```jsx
+import { VerticalPlanCards } from '@heymantle/polaris';
+
+function PlanSelectionPage() {
+  return (
+    <VerticalPlanCards
+      plans={plans}
+      customer={customer}
+      onSubscribe={(plan) => {
+        console.log('Selected plan:', plan);
+        // Handle subscription logic
+      }}
+      backUrl="/dashboard"
+      keyForRecommended="recommended"
+      keyForCustomButtonLabel="buttonLabel"
+      showPlanIntervalToggle={false}
+      trialDaysAsFeature={true}
+      useShortFormPlanIntervals={true}
+      pageWidth="default"
+      showCustomPlans={true}
+      showRecommendedPlanBadge={true}
+      applyDiscount={true}
+      translatePlanName={true}
+      toggleYearlySubtitle={false}
+      showFeatureDescriptionAsTooltip={true}
+    />
+  );
+}
+```
+
+## Props
+
+<ParamField path="plans" type="array" required>
+  Array of plan objects to display. Each plan should include pricing, features, and metadata.
+  
+  Expected structure:
+  ```javascript
+  [{
+    id: string,
+    name: string,
+    interval: "EVERY_30_DAYS" | "ANNUAL",
+    availability: "public" | "customer" | "customerTag",
+    amount: number,
+    currencyCode: string,
+    customFields: object,
+    features: array,
+    trialDays: number,
+    discounts: array
+  }]
+  ```
+</ParamField>
+
+<ParamField path="customer" type="object" required>
+  Customer object containing subscription information. Used to identify the active plan and display appropriate states.
+  
+  Expected structure:
+  ```javascript
+  {
+    subscription: {
+      plan: { id: string },
+      active: boolean,
+      cancelOn: string | null
+    }
+  }
+  ```
+</ParamField>
+
+<ParamField path="onSubscribe" type="function" required>
+  Callback function triggered when a user selects a plan. Receives the selected plan object as an argument.
+  
+  ```javascript
+  (plan) => void
+  ```
+</ParamField>
+
+<ParamField path="backUrl" type="string" default="">
+  URL for the back button in the page header. If empty string, the back button will be hidden.
+</ParamField>
+
+<ParamField path="keyForRecommended" type="string" default="recommended">
+  The key name in plan's `customFields` object to identify recommended plans. Plans with this custom field set to a truthy value will display the recommended badge.
+</ParamField>
+
+<ParamField path="keyForCustomButtonLabel" type="string" default="buttonLabel">
+  The key name in plan's `customFields` object to use for custom button labels. For example, if set to `"buttonLabel"`, the component will look for `plan.customFields.buttonLabel` to override the default button text.
+</ParamField>
+
+<ParamField path="showPlanIntervalToggle" type="boolean" default={false}>
+  Whether to show the Monthly/Yearly toggle in the page header. Only appears if both monthly and yearly plans are available. When enabled, filters plans by the selected interval.
+</ParamField>
+
+<ParamField path="trialDaysAsFeature" type="boolean" default={true}>
+  Whether to display trial days as a feature in the plan's feature list (e.g., "14-day free trial").
+</ParamField>
+
+<ParamField path="useShortFormPlanIntervals" type="boolean" default={true}>
+  Use shortened interval labels (e.g., "$/mo" instead of "$/month", "$/yr" instead of "$/year").
+</ParamField>
+
+<ParamField path="pageWidth" type="string" default="default">
+  Controls the page width. Options:
+  - `"default"`: Standard Polaris page width
+  - `"narrow"`: Narrow page width
+  - `"full"`: Full-width page
+</ParamField>
+
+<ParamField path="showCustomPlans" type="boolean" default={true}>
+  Whether to display custom plans (plans with `availability` of `"customer"` or `"customerTag"`) in a separate section below public plans.
+</ParamField>
+
+<ParamField path="showRecommendedPlanBadge" type="boolean" default={true}>
+  Whether to display a "Recommended" badge on plans marked as recommended via custom fields.
+</ParamField>
+
+<ParamField path="applyDiscount" type="boolean" default={true}>
+  Whether to calculate and display the highest available discount for each plan. When enabled, shows discounted pricing if discounts are available.
+</ParamField>
+
+<ParamField path="t" type="function">
+  Translation function for internationalization. Should accept a string key and return the translated string.
+  
+  ```javascript
+  (key: string) => string
+  ```
+  
+  If not provided, keys are returned as-is without translation.
+</ParamField>
+
+<ParamField path="translatePlanName" type="boolean" default={true}>
+  Whether to pass plan names through the translation function. Set to `false` to display plan names exactly as provided.
+</ParamField>
+
+<ParamField path="toggleYearlySubtitle" type="boolean" default={false}>
+  For annual plans, show the monthly equivalent price as a subtitle (e.g., "$120/year" with "$10/month" shown below).
+</ParamField>
+
+<ParamField path="showFeatureDescriptionAsTooltip" type="boolean" default={true}>
+  Display feature descriptions in tooltips when hovering over feature names, rather than inline.
+</ParamField>
+
+## Features
+
+### Automatic Success Banner
+
+The component automatically displays a success banner when the URL contains `?subscribed=true`, indicating a successful subscription. Users can dismiss the banner, which removes the query parameter from the URL.
+
+### Active Plan Highlighting
+
+The currently active plan (matching `customer.subscription.plan.id`) is automatically highlighted with different styling to help users identify their current subscription.
+
+### Discount Display
+
+When `applyDiscount={true}`, the component automatically calculates and displays the highest available discount for each plan. Discounted prices are shown prominently with the original price struck through.
+
+### Plan Interval Toggle
+
+When both monthly and annual plans are available and `showPlanIntervalToggle={true}`, a segmented button group appears in the page header. This filters the displayed plans to show only the selected interval.
+
+### Custom Plans Section
+
+Plans with `availability` set to `"customer"` or `"customerTag"` are displayed in a separate "Custom Plans" section below the public plans, separated by a divider.
+
+### Internationalization Support
+
+Full support for translating plan names, labels, and UI text via the `t` translation function and `translatePlanName` prop.
+
+## Related Components
+
+- [HorizontalPlanCards](/api/horizontal-plan-cards) - Alternative horizontal layout for plan cards
+- [HighlightedPlanCards](/api/highlighted-plan-cards) - Plan cards with highlighted recommended plan
+- [SubscriptionSummaryCard](/api/subscription-summary-card) - Display current subscription details

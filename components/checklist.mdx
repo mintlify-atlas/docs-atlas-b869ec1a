@@ -1,0 +1,438 @@
+---
+title: ChecklistCard
+description: Create interactive onboarding checklists with progress tracking
+---
+
+The `ChecklistCard` component helps you create engaging onboarding experiences with interactive checklists. It includes progress tracking, collapsible completed items, and optional description modals.
+
+## Features
+
+- Interactive checkboxes for task completion
+- Visual progress bar with percentage
+- Hide/show completed items
+- Optional description modals
+- Inline descriptions or tooltips
+- Customizable completion and empty states
+- Full accessibility support
+- Smooth animations and transitions
+
+## Basic Usage
+
+```jsx
+import { ChecklistCard } from '@heymantle/polaris';
+import { useState } from 'react';
+
+function OnboardingPage() {
+  const [steps, setSteps] = useState([
+    {
+      id: 'step1',
+      name: 'Connect your store',
+      description: 'Link your Shopify store to get started',
+      completed: false,
+    },
+    {
+      id: 'step2',
+      name: 'Configure settings',
+      description: 'Set up your preferences and options',
+      completed: false,
+    },
+    {
+      id: 'step3',
+      name: 'Create your first campaign',
+      description: 'Launch your first marketing campaign',
+      completed: false,
+    },
+  ]);
+
+  const handleToggle = (stepId) => {
+    setSteps(steps.map(step => 
+      step.id === stepId ? { ...step, completed: !step.completed } : step
+    ));
+  };
+
+  return (
+    <ChecklistCard
+      title="Get Started"
+      steps={steps}
+      handleToggle={handleToggle}
+    />
+  );
+}
+```
+
+## Props Reference
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | `"Checklist"` | Title displayed at the top of the card |
+| `steps` | `Array` | `[]` | Array of step objects (see Step Object below) |
+| `showProgress` | `boolean` | `true` | Display progress bar and percentage |
+| `showProgressText` | `boolean` | `true` | Show "X of Y completed" text with progress |
+| `hideCompleted` | `boolean` | `false` | Hide completed steps from main list |
+| `allowExpandCompleted` | `boolean` | `true` | Allow expanding hidden completed steps |
+| `showDescription` | `boolean` | `true` | Show descriptions inline below step names |
+| `enableDescriptionModal` | `boolean` | `false` | Enable clicking step names to show description in modal |
+| `completionMessage` | `string\|JSX.Element` | `"All items completed! Great job!"` | Message when all steps are hidden and completed |
+| `noItemsMessage` | `string\|JSX.Element` | `"No items in this checklist yet."` | Message when steps array is empty |
+
+### Step Object
+
+Each step in the `steps` array should have:
+
+```typescript
+{
+  id: string;           // Unique identifier for the step
+  name: string;         // Display name of the step
+  description?: string; // Optional description text
+  completed: boolean;   // Whether the step is completed
+}
+```
+
+<Note>
+  The component is controlled - you must manage the `steps` state and provide a `handleToggle` function to update completion status.
+</Note>
+
+## Progress Tracking
+
+### With Progress Bar
+
+```jsx
+<ChecklistCard
+  title="Onboarding"
+  steps={steps}
+  showProgress={true}
+  showProgressText={true}
+/>
+```
+
+Displays:
+- "Progress: X of Y completed" text
+- Percentage (e.g., "75%")
+- Visual progress bar
+- Green color when complete, blue otherwise
+
+### Without Progress Bar
+
+```jsx
+<ChecklistCard
+  title="Quick Tasks"
+  steps={steps}
+  showProgress={false}
+/>
+```
+
+Hides all progress indicators for a cleaner look.
+
+## Hiding Completed Items
+
+Create a focused experience by hiding completed tasks:
+
+```jsx
+<ChecklistCard
+  title="Getting Started"
+  steps={steps}
+  hideCompleted={true}
+  allowExpandCompleted={true}
+/>
+```
+
+When `hideCompleted={true}`:
+- Incomplete steps are shown by default
+- Completed steps are hidden
+- "Show X completed items" button appears
+- Users can expand to see completed steps
+- Button changes to "Hide X completed items" when expanded
+
+### Permanently Hide Completed
+
+```jsx
+<ChecklistCard
+  title="Setup Checklist"
+  steps={steps}
+  hideCompleted={true}
+  allowExpandCompleted={false}
+  completionMessage="Setup complete! You're ready to go."
+/>
+```
+
+When all steps are completed:
+- Shows custom completion message
+- No way to view completed steps
+- Clean, celebration-focused UI
+
+## Description Modes
+
+### Inline Descriptions
+
+```jsx
+<ChecklistCard
+  title="Setup Guide"
+  steps={steps}
+  showDescription={true}
+  enableDescriptionModal={false}
+/>
+```
+
+Descriptions appear below each step name in subdued text.
+
+### Modal Descriptions
+
+```jsx
+<ChecklistCard
+  title="Setup Guide"
+  steps={steps}
+  showDescription={false}
+  enableDescriptionModal={true}
+/>
+```
+
+Step names become clickable:
+- Hover shows underline
+- Click opens modal with full description
+- Modal has close button
+- Better for longer descriptions
+
+### Both Modes
+
+```jsx
+<ChecklistCard
+  title="Setup Guide"
+  steps={steps}
+  showDescription={true}
+  enableDescriptionModal={true}
+/>
+```
+
+Show brief descriptions inline and allow clicking for full details.
+
+## Custom Messages
+
+### Completion Message
+
+Customize what users see when all tasks are complete:
+
+```jsx
+<ChecklistCard
+  title="Onboarding"
+  steps={steps}
+  hideCompleted={true}
+  allowExpandCompleted={false}
+  completionMessage={
+    <BlockStack gap="200">
+      <Text variant="headingMd">All done!</Text>
+      <Text>You've completed all setup steps. Time to grow your business!</Text>
+      <Button variant="primary">Go to Dashboard</Button>
+    </BlockStack>
+  }
+/>
+```
+
+### Empty State Message
+
+Show a custom message when there are no steps:
+
+```jsx
+<ChecklistCard
+  title="Tasks"
+  steps={[]}
+  noItemsMessage={
+    <Text tone="subdued" alignment="center">
+      No pending tasks. Check back later!
+    </Text>
+  }
+/>
+```
+
+## Visual States
+
+The component provides visual feedback for different states:
+
+### Incomplete Steps
+- Unchecked checkbox
+- Normal text weight
+- No strikethrough
+- Base tone
+
+### Completed Steps
+- Checked checkbox
+- Subdued text tone
+- Strikethrough on step name
+- Visually de-emphasized
+
+### Progress Bar
+- Blue bar for in-progress
+- Green bar when 100% complete
+- Smooth transitions (0.3s ease)
+- 8px height, rounded corners
+
+### Completion Icon
+- Green check circle icon
+- "Complete!" text in success tone
+- Appears next to title when done
+
+## Code Examples from Source
+
+Here's how the component renders the progress bar (from ChecklistCard.js:137-155):
+
+```jsx
+<div
+  style={{
+    width: "100%",
+    height: "8px",
+    backgroundColor: "#f0f0f0",
+    borderRadius: "4px",
+    overflow: "hidden",
+  }}
+>
+  <div
+    style={{
+      width: `${progressPercentage}%`,
+      height: "100%",
+      backgroundColor: isComplete ? "#00a047" : "#006fbb",
+      transition: "width 0.3s ease",
+    }}
+  />
+</div>
+```
+
+The collapsible completed section (ChecklistCard.js:193-196):
+
+```jsx
+<Collapsible
+  open={showCompletedSteps}
+  id="completed-steps"
+  transition={{duration: '200ms', timingFunction: 'ease-in-out'}}
+>
+```
+
+## Complete Example
+
+```jsx
+import { ChecklistCard } from '@heymantle/polaris';
+import { useState, useEffect } from 'react';
+import { useMantle } from '@heymantle/react';
+
+function OnboardingPage() {
+  const { customer } = useMantle();
+  
+  const [steps, setSteps] = useState([
+    {
+      id: 'install',
+      name: 'Install the app',
+      description: 'Complete the installation process',
+      completed: true, // Already done
+    },
+    {
+      id: 'subscribe',
+      name: 'Choose a plan',
+      description: 'Select a subscription plan that fits your needs',
+      completed: false,
+    },
+    {
+      id: 'configure',
+      name: 'Configure settings',
+      description: 'Set up your preferences in the settings page',
+      completed: false,
+    },
+    {
+      id: 'launch',
+      name: 'Launch your first campaign',
+      description: 'Create and activate your first marketing campaign',
+      completed: false,
+    },
+  ]);
+
+  // Update subscribe step based on subscription status
+  useEffect(() => {
+    if (customer?.subscription) {
+      setSteps(prev => prev.map(step => 
+        step.id === 'subscribe' 
+          ? { ...step, completed: true }
+          : step
+      ));
+    }
+  }, [customer]);
+
+  const handleToggle = async (stepId) => {
+    // Update UI optimistically
+    setSteps(prev => prev.map(step => 
+      step.id === stepId 
+        ? { ...step, completed: !step.completed }
+        : step
+    ));
+
+    // Save to backend
+    await saveChecklistProgress(stepId);
+    
+    // Track analytics
+    analytics.track('Checklist Step Completed', { stepId });
+  };
+
+  return (
+    <Page title="Welcome to Your App">
+      <Layout>
+        <Layout.Section>
+          <ChecklistCard
+            title="Get Started in 4 Easy Steps"
+            steps={steps}
+            handleToggle={handleToggle}
+            showProgress={true}
+            hideCompleted={true}
+            allowExpandCompleted={true}
+            enableDescriptionModal={true}
+            completionMessage={
+              <BlockStack gap="300">
+                <Text variant="headingMd" alignment="center">
+                  Congratulations! You're all set up.
+                </Text>
+                <InlineStack align="center">
+                  <Button 
+                    variant="primary" 
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    Go to Dashboard
+                  </Button>
+                </InlineStack>
+              </BlockStack>
+            }
+          />
+        </Layout.Section>
+      </Layout>
+    </Page>
+  );
+}
+```
+
+## Best Practices
+
+<Warning>
+  The ChecklistCard component doesn't persist state automatically. You must implement your own state management and backend persistence.
+</Warning>
+
+1. **Keep checklists short** - 3-5 steps is ideal for initial onboarding
+2. **Use clear, action-oriented names** - "Connect your store" not "Store connection"
+3. **Provide helpful descriptions** - Give context for why each step matters
+4. **Auto-check when possible** - Automatically mark steps complete based on app state
+5. **Track completion** - Use analytics to identify drop-off points
+6. **Celebrate completion** - Show encouraging completion messages
+7. **Make steps actionable** - Consider linking step names to relevant pages
+
+## Accessibility
+
+- Full keyboard navigation support
+- ARIA labels on checkboxes
+- Semantic HTML structure
+- Focus management for modals
+- Screen reader friendly
+
+## Related Components
+
+<CardGroup cols={2}>
+  <Card title="Plan Cards" icon="credit-card" href="/components/plan-cards">
+    Link checklist steps to subscription flow
+  </Card>
+  
+  <Card title="Subscription Summary" icon="file-invoice" href="/components/subscription-summary">
+    Auto-complete subscription-related steps
+  </Card>
+</CardGroup>
