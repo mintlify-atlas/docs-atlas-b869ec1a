@@ -338,6 +338,32 @@ function AccountPage() {
 5. **Use vertical layout for mobile** - Better readability on small screens
 6. **Customize labels** - Match your app's tone and terminology
 
+## SubscriptionSummaryPage
+
+For a complete page layout with built-in navigation and wrapper, use `SubscriptionSummaryPage`:
+
+```jsx
+import { SubscriptionSummaryPage } from '@heymantle/polaris';
+
+function SubscriptionPage() {
+  return (
+    <SubscriptionSummaryPage
+      backUrl="/settings"
+      pageWidth="narrow"
+    />
+  );
+}
+```
+
+This component wraps `SubscriptionSummaryCard` in a Polaris `Page` component with automatic integration with the `useMantle` hook. It's useful when you want a dedicated subscription management page.
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `backUrl` | `string` | `""` | URL for back navigation. Leave empty to hide back button |
+| `pageWidth` | `string` | `"narrow"` | Page width: "full", "narrow", or "default" |
+
 ## Related Components
 
 <CardGroup cols={2}>

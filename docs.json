@@ -57,6 +57,7 @@
           "api/vertical-plan-cards",
           "api/highlighted-plan-cards",
           "api/subscription-summary-card",
+          "api/subscription-summary-page",
           "api/checklist-card",
           "api/bundle-card"
         ]

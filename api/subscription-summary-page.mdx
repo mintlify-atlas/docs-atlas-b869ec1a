@@ -1,0 +1,99 @@
+---
+title: SubscriptionSummaryPage
+description: Complete API reference for the SubscriptionSummaryPage component
+---
+
+The `SubscriptionSummaryPage` component is a full-page wrapper around `SubscriptionSummaryCard` that provides automatic integration with the Mantle context and Polaris page layout.
+
+## Import
+
+```jsx
+import { SubscriptionSummaryPage } from '@heymantle/polaris';
+```
+
+## Usage
+
+```jsx
+import { SubscriptionSummaryPage } from '@heymantle/polaris';
+
+function SubscriptionManagementPage() {
+  return (
+    <SubscriptionSummaryPage
+      backUrl="/settings"
+      pageWidth="narrow"
+    />
+  );
+}
+```
+
+## Props
+
+<ParamField path="backUrl" type="string" default='""'>
+  URL for the back navigation button. Leave as empty string or null to hide the back button.
+</ParamField>
+
+<ParamField path="pageWidth" type="string" default='"narrow"'>
+  Controls the maximum width of the page content. Options:
+  - `"full"` - Full width
+  - `"narrow"` - Narrow centered layout (recommended for subscription pages)
+  - `"default"` - Default Polaris page width
+</ParamField>
+
+## Features
+
+- **Automatic Mantle Integration**: Automatically uses `useMantle()` hook to fetch subscription data, cancellation function, and i18n labels
+- **Polaris Page Wrapper**: Wrapped in Shopify Polaris `Page` component for consistent navigation
+- **No Props Required**: Works out of the box with no required props - all data comes from Mantle context
+- **Responsive Layout**: Adapts to different screen sizes automatically
+
+## How It Works
+
+The component internally:
+1. Calls `useMantle()` to get `subscription`, `cancelSubscription`, `i18n`, and `refetch`
+2. Wraps the content in a Polaris `Page` with the configured width and back button
+3. Renders `SubscriptionSummaryCard` with the data from Mantle
+
+<Note>
+  This component requires `MantleProvider` to be present in the component tree. It will not work outside of the Mantle context.
+</Note>
+
+## When to Use
+
+Use `SubscriptionSummaryPage` when:
+- You want a dedicated full-page view for subscription management
+- You need a quick, zero-config subscription page
+- You prefer automatic Mantle integration over manual prop passing
+
+Use `SubscriptionSummaryCard` instead when:
+- You want to embed the subscription summary in a larger page
+- You need custom layout or additional components on the same page
+- You want full control over the data flow
+
+## Example: Complete Subscription Page
+
+```jsx
+import { SubscriptionSummaryPage } from '@heymantle/polaris';
+import { MantleProvider } from '@heymantle/react';
+
+function App() {
+  return (
+    <MantleProvider
+      appId={process.env.MANTLE_APP_ID}
+      customerApiToken={shop.mantleApiToken}
+    >
+      <SubscriptionSummaryPage backUrl="/settings" />
+    </MantleProvider>
+  );
+}
+```
+
+## Related Components
+
+<CardGroup cols={2}>
+  <Card title="SubscriptionSummaryCard" icon="credit-card" href="/api/subscription-summary-card">
+    The underlying card component with full prop control
+  </Card>
+  <Card title="Plan Cards" icon="grid" href="/components/plan-cards">
+    Allow users to select and change plans
+  </Card>
+</CardGroup>
