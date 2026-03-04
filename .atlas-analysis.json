@@ -1,0 +1,70 @@
+{
+  "projectType": "frontend",
+  "projectName": "Mantle Polaris",
+  "projectDescription": "Drop-in Polaris components for integrating Shopify app billing UI with Mantle",
+  "theme": "almond",
+  "primaryColor": "#fbc37b",
+  "lightColor": "#7e6443",
+  "darkColor": "#201e17",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "introduction",
+          "installation",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Components",
+        "pages": [
+          "components/overview",
+          "components/plan-cards",
+          "components/subscription-summary",
+          "components/checklist",
+          "components/bundle-card"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "guides/integration",
+          "guides/customization",
+          "guides/styling"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "pages": [
+          "api/horizontal-plan-cards",
+          "api/vertical-plan-cards",
+          "api/highlighted-plan-cards",
+          "api/subscription-summary-card",
+          "api/checklist-card",
+          "api/bundle-card"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Multiple plan card layout options (horizontal, vertical, highlighted)",
+    "Subscription management UI components",
+    "Customizable billing and pricing displays",
+    "Built-in support for trials, discounts, and usage charges",
+    "Checklist component for onboarding workflows",
+    "Bundle promotion cards"
+  ],
+  "publicApiSurface": [
+    "HorizontalPlanCards",
+    "VerticalPlanCards",
+    "HighlightedPlanCards",
+    "HorizontalPlanCard",
+    "VerticalPlanCard",
+    "HighlightedPlanCard",
+    "PlanCardStack",
+    "SubscriptionSummaryCard",
+    "ChecklistCard",
+    "BundleCard"
+  ]
+}
